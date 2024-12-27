@@ -4,89 +4,70 @@ import java.util.*;
 
 public class Fitness {
 
-    public static int evaluate(Tile[][] map) {
+    public static PathResult evaluate(Tile[][] map, Train train) {
         int fitness = 0;
+        PathResult result = new PathResult(false, 0, new ArrayList<>());
 
-        for (Train train : Game.TRAINS) {
-            PathResult result = findPath(map, train.startTile, train.endTile);
-            train.pathCost = result.pathCost;
-            train.setPath(result.path);
+        result.pathCost = fitness;
+        result = findPath(map, train.startTile, train.endTile);
+        train.pathCost = result.pathCost;
+        train.setPath(result.path);
 
-            if (!result.pathExists) {
-                fitness -= 100; // Penalty for no path
-            } else {
-                fitness += 100; // Reward for path existence
-                fitness -= result.pathCost; // Subtract cost
-            }
+        if (!result.pathExists) {
+            fitness -= 100; // Penalty for no path
+        } else {
+            fitness += 100; // Reward for path existence
+            fitness -= result.pathCost; // Subtract cost
         }
 
-        return fitness;
+        result.pathCost = fitness;
+        return result;
     }
 
     private static PathResult findPath(Tile[][] map, Tile start, Tile end) {
         Set<Tile> visited = new HashSet<>();
         List<String> path = new ArrayList<>();
-        return dfs(map, start, end, visited, 0, 0, path);
+        return dfs(map, start, end, visited, 0, path);
     }
 
-    private static PathResult dfs(Tile[][] roadMap, Tile start, Tile end, Set<Tile> visited, int depth, int pathCost, List<String> path) {
-        if (start.equals(end)) {
-            return new PathResult(true, pathCost, new ArrayList<>(path)); // Path found
+    private static PathResult dfs(Tile[][] roadMap, Tile current, Tile end, Set<Tile> visited, int pathCost, List<String> path) {
+        if (current.equals(end)) {
+            return new PathResult(true, pathCost, new ArrayList<>(path)); // Return a copy of the path
         }
 
-        visited.add(start);
+        visited.add(current);
+        List<Tile> neighbors = new ArrayList<>(current.getNeighbors());
 
-        Tile bestNeighbor = null;
-        int minDistance = Integer.MAX_VALUE;
+        // Sort neighbors based on the distance to the target tile
+        neighbors.sort(Comparator.comparingInt(neighbor -> calculateDistance(neighbor, end)));
 
+        PathResult result;
+        for (Tile neighbor : neighbors) {
+            if (!visited.contains(neighbor) && isValid(neighbor, roadMap) && isValidConnection(current, neighbor)) {
+                path.add(determineMove(current, neighbor));
+                result = dfs(roadMap, neighbor, end, visited, pathCost + neighbor.getTypeIndex(), path);
 
-        for (Tile neighbor : start.getNeighbors()) {
-            if (!visited.contains(neighbor) && isValid(neighbor, roadMap)) {
-                int distance = calculateDistance(neighbor, end);
-                if (distance < minDistance) {
-                    bestNeighbor = neighbor;
-                    minDistance = distance;
+                if (result.pathExists) {
+                    return result;
                 }
-            }
-        }
+                path.remove(path.size() - 1); // Backtrack
+            } else if (!visited.contains(neighbor) && isValid(neighbor, roadMap)) {
+                // Modify the road type if necessary
+                Tile temp = changeRoad(current, neighbor);
+                roadMap[neighbor.x][neighbor.y] = temp;
+                pathCost += neighbor.getTypeIndex();
 
-        // If no valid connection neighbors found, check all other neighbors (with tile changes if necessary)
-        if (bestNeighbor == null) {
-            for (Tile neighbor : start.getNeighbors()) {
-                if (!visited.contains(neighbor) && isValid(neighbor, roadMap) && isValidConnection(start, neighbor)) {
-                    int distance = calculateDistance(neighbor, end);
-                    if (distance < minDistance) {
-                        bestNeighbor = neighbor;
-                        minDistance = distance;
-                    }
+                path.add(determineMove(current, neighbor));
+                result = dfs(roadMap, neighbor, end, visited, pathCost, path);
+
+                if (result.pathExists) {
+                    return result;
                 }
+                path.remove(path.size() - 1); // Backtrack
             }
         }
 
-        if (bestNeighbor != null) {
-            Tile currentTile = roadMap[start.x][start.y];
-            Tile neighborTile = roadMap[bestNeighbor.x][bestNeighbor.y];
-
-            boolean requiresChange = !isValidConnection(currentTile, neighborTile);
-
-            if (requiresChange) {
-                Tile changedRoad = changeRoad(currentTile, neighborTile);
-                roadMap[neighborTile.x][neighborTile.y] = changedRoad;
-                Game.map[neighborTile.x][neighborTile.y] = changedRoad;
-                pathCost += changedRoad.getTypeIndex();
-            }
-
-            path.add(determineMove(start, bestNeighbor)); // Add move to path
-            bestNeighbor.visitedByTrain = true;
-
-            PathResult result = dfs(roadMap, neighborTile, end, visited, depth + 1, pathCost, path);
-            if (result.pathExists) {
-                return result;
-            }
-
-            path.remove(path.size() - 1); // Backtrack
-        }
-
+        visited.remove(current); // Allow revisiting this tile in a different path
         return new PathResult(false, pathCost, path); // No path found
     }
 
@@ -109,75 +90,27 @@ public class Fitness {
     }
 
     private static Tile changeRoad(Tile currentTile, Tile neighborTile) {
-        TileType neighborType = neighborTile.getType();
-
-
-        if (neighborType == TileType.STRAIGHT || neighborType == TileType.TURN || neighborType == TileType.THREEWAY) {
-            if (needsThreeWayConnection(currentTile, neighborTile)) {
-                if (neighborType != TileType.THREEWAY) {
-                    neighborTile.setType(TileType.THREEWAY);
-                    adjustRotationForThreeWay(currentTile, neighborTile);
-                }
-            }
-        }
-
+        // Iterate through tile types and rotations to find a valid configuration
         for (int i = 0; i < TileType.values().length - 2; i++) {
             for (int j = 0; j < Rotation.values().length; j++) {
                 Tile tempTile = new Tile(neighborTile.x, neighborTile.y, Rotation.values()[j], TileType.values()[i]);
-                if (isValidConnection(currentTile, tempTile)) {
+                boolean allConnectionsValid = true;
+                // Check if the tempTile has valid connections to all trains
+                for (Tile road : neighborTile.visitedByTrains) {
+                    if (!isValidConnection(road, tempTile)) {
+                        allConnectionsValid = false;
+                        break;
+                    }
+                }
+                // If all connections are valid and tempTile is valid for the currentTile
+                if (allConnectionsValid && isValidConnection(currentTile, tempTile)) {
                     return tempTile;
                 }
             }
         }
-
+        // If no valid configuration is found, set the tile to CROSS
         neighborTile.setType(TileType.CROSS);
         return neighborTile;
-    }
-
-    private static boolean needsThreeWayConnection(Tile currentTile, Tile neighborTile) {
-        // Logic to determine if a three-way connection is needed
-        if (neighborTile.getType() == TileType.CROSS || neighborTile.getType() == TileType.THREEWAY || neighborTile.getType() == TileType.TRAIN || neighborTile.getType() == TileType.STATION) {
-            return false;
-        }
-        return isValidConnection(currentTile, neighborTile); // If there doesn't exist a connection
-    }
-
-    private static void adjustRotationForThreeWay(Tile currentTile, Tile neighborTile) {
-        List<Tile> neighbors = neighborTile.getNeighbors();
-        List<Tile> neighboursConnectedToNeighbor = new ArrayList<>();
-        for (Tile neighbor : neighbors) {
-            if (isValidConnection(neighborTile, neighbor)) {
-                neighboursConnectedToNeighbor.add(neighbor);
-            }
-        }
-
-        // Rotate the neighborTile until all conditions are satisfied
-        int maxRotations = 4; // Assuming each tile has 4 possible rotations (e.g., 0°, 90°, 180°, 270°)
-        for (int i = 0; i < maxRotations; i++) {
-            boolean allValidConnections = true;
-
-            // Check if the neighborTile is validly connected to all neighboursConnectedToNeighbor
-            for (Tile connectedNeighbor : neighboursConnectedToNeighbor) {
-                if (!isValidConnection(neighborTile, connectedNeighbor)) {
-                    allValidConnections = false;
-                    break;
-                }
-            }
-
-            // Check if the neighborTile is validly connected to the currentTile
-            if (!isValidConnection(currentTile, neighborTile)) {
-                allValidConnections = false;
-            }
-
-            // If all connections are valid, stop rotating
-            if (allValidConnections) {
-                break;
-            }
-
-            // Rotate the neighborTile for the next iteration
-            neighborTile.setRotation(Rotation.values()[i]);
-            Game.map[neighborTile.x][neighborTile.y] = neighborTile;
-        }
     }
 
 
@@ -244,16 +177,5 @@ public class Fitness {
         return currentToNeighbor && neighborToCurrent;
     }
 
-    public static class PathResult {
-        boolean pathExists;
-        int pathCost;
-        List<String> path;
-
-        PathResult(boolean pathExists, int pathCost, List<String> path) {
-            this.pathExists = pathExists;
-            this.pathCost = pathCost;
-            this.path = path;
-        }
-    }
 
 }

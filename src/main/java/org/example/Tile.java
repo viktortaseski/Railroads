@@ -9,13 +9,14 @@ public class Tile {
     int y;
     Rotation rotation;
     TileType type;
-    boolean visitedByTrain = false;
+    List<Tile> visitedByTrains;
 
     public Tile(int x, int y, Rotation rotation, TileType type) {
         this.x = x;
         this.y = y;
         this.rotation = rotation;
         this.type = type;
+        visitedByTrains = new ArrayList<>();
     }
 
     public static Tile randomRoad(int x, int y) {

@@ -3,13 +3,14 @@ package org.example;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class Tile {
-    int x;
-    int y;
-    Rotation rotation;
-    TileType type;
-    List<Tile> visitedByTrains;
+    private int x;
+    private int y;
+    private Rotation rotation;
+    private TileType type;
+    private List<Tile> visitedByTrains;
 
     public Tile(int x, int y, Rotation rotation, TileType type) {
         this.x = x;
@@ -39,6 +40,13 @@ public class Tile {
         return neighbors;
     }
 
+    public List<Tile> getVisitedByTrains() {
+        return visitedByTrains;
+    }
+
+    public void addVisited(Tile tile) {
+        visitedByTrains.add(tile);
+    }
 
     public int getX() {
         return x;

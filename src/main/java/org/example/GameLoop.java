@@ -25,7 +25,7 @@ public class GameLoop implements Runnable {
         mode = scanner.nextInt();
         if (mode > 0 && mode < 4) {
             System.out.println("Creating game... Mode: " + mode);
-            Game game = new Game(20, 10);
+            Game game = new Game(10, 2);
             Evaluator evaluator = new Evaluator(game, mode);
             game.init();
         }else {

@@ -59,8 +59,8 @@ public class Gui extends JPanel implements Runnable {
             for (Train train : Game.TRAINS) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setColor(Color.RED);
-                g2d.drawString(train.id + "", train.startTile.x * 40, train.startTile.y * 40 + 40);
-                g2d.drawString(train.id + "", train.endTile.x * 40, train.endTile.y * 40 + 40);
+                g2d.drawString(train.getId() + "", train.getStartTile().getX() * 40, train.getStartTile().getY() * 40 + 40);
+                g2d.drawString(train.getId() + "", train.getEndTile().getX() * 40, train.getEndTile().getY() * 40 + 40);
                 g2d.dispose();
             }
         }

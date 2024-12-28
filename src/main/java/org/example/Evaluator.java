@@ -20,7 +20,7 @@ public class Evaluator {
         System.out.println("Running time: " + (endTime - startTime) + " ms | " + iterations + " iterations");
 
         for (Train train: Game.TRAINS){
-            System.out.println("Train[" + train.id + "] Cost = " + train.pathCost + " Path = " +train.getPath());
+            System.out.println("Train[" + train.getId() + "] Cost = " + train.getPathCost() + " Path = " +train.getPath());
         }
 
         return totalPathCost;

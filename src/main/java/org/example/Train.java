@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Train {
-    Tile startTile;
-    Tile endTile;
-    int pathCost;
+    private Tile startTile;
+    private Tile endTile;
+    private int pathCost;
     private List<String> path;
-    int id;
+    private int id;
 
     public Train(Tile startTile, Tile endTile) {
         this.startTile = startTile;
@@ -26,6 +26,11 @@ public class Train {
     public int getPathCost() {
         return pathCost;
     }
+
+    public void setPathCost(int pathCost) {
+        this.pathCost = pathCost;
+    }
+
     public int getId() {
         return id;
     }

@@ -28,14 +28,14 @@ public class Tile {
 
     public List<Tile> getNeighbors() {
         List<Tile> neighbors = new ArrayList<>();
-        int rows = Game.map.length;
-        int cols = Game.map[0].length;
+        int rows = Game.getMap().length;
+        int cols = Game.getMap()[0].length;
 
         // Check bounds for all possible neighbors
-        if (x > 0) neighbors.add(Game.map[x - 1][y]); // North
-        if (x < rows - 1) neighbors.add(Game.map[x + 1][y]); // South
-        if (y > 0) neighbors.add(Game.map[x][y - 1]); // West
-        if (y < cols - 1) neighbors.add(Game.map[x][y + 1]); // East
+        if (x > 0) neighbors.add(Game.getMap()[x - 1][y]); // North
+        if (x < rows - 1) neighbors.add(Game.getMap()[x + 1][y]); // South
+        if (y > 0) neighbors.add(Game.getMap()[x][y - 1]); // West
+        if (y < cols - 1) neighbors.add(Game.getMap()[x][y + 1]); // East
 
         return neighbors;
     }

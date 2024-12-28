@@ -69,8 +69,8 @@ public class GameLoop implements Runnable {
         // Proceed with tile placement if conditions are met
         if (enteredX && enteredY && rotation != null && tileType != null) {
             tileToRemove = new Tile(x, y, rotation, tileType);
-            if (Game.map[x][y].getType() != TileType.TRAIN && Game.map[x][y].getType() != TileType.STATION) {
-                Game.map[x][y] = tileToRemove;
+            if (Game.getMap()[x][y].getType() != TileType.TRAIN && Game.getMap()[x][y].getType() != TileType.STATION) {
+                Game.getMap()[x][y] = tileToRemove;
                 System.out.println("Successfully entered a new Tile. Position (" + x + ", " + y + ") Rotation: " + rotation.name() + " TileType: " + tileType.name());
                 tileToRemove = null;
                 enteredX = false;

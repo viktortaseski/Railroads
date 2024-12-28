@@ -2,7 +2,6 @@ package org.example;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -21,12 +20,12 @@ public class GeneticAlgorithm {
 
         if ( mode == 1 ){   // Sequential execution
             for (int i = 0; i < iterations; i++){
-                solutions[i] = Fitness.evaluate(Game.map, train);
-                if (solutions[i].pathCost < bestFitness.pathCost){
+                solutions[i] = Fitness.evaluate(Game.getMap(), train);
+                if (solutions[i].getPathCost() < bestFitness.getPathCost()){
                     System.out.println("Found better path.");
                     bestFitness = solutions[i];
-                    mutatePath(bestFitness.path, random);
-                    fitness = bestFitness.pathCost;
+                    mutatePath(bestFitness.getPath(), random);
+                    fitness = bestFitness.getPathCost();
                 }
                 System.out.println("Sequential Iteration, Fitness: " + fitness);
             }

@@ -40,7 +40,7 @@ public class Gui extends JPanel implements Runnable {
 
         for (int i = 0; i < Game.size; i++) {
             for (int j = 0; j < Game.size; j++) {
-                Tile tile = Game.map[i][j];
+                Tile tile = Game.getMap()[i][j];
                 if ( tile != null ) {
                     int x = tile.getX() * 40;
                     int y = tile.getY() * 40;

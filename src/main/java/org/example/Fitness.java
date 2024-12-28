@@ -8,19 +8,19 @@ public class Fitness {
         int fitness = 0;
         PathResult result = new PathResult(false, 0, new ArrayList<>());
 
-        result.pathCost = fitness;
+        result.setPathCost(fitness);
         result = findPath(map, train.getStartTile(), train.getEndTile());
-        train.setPathCost(result.pathCost);
-        train.setPath(result.path);
+        train.setPathCost(result.getPathCost());
+        train.setPath(result.getPath());
 
-        if (!result.pathExists) {
+        if (!result.isPathExists()) {
             fitness -= 100; // Penalty for no path
         } else {
             fitness += 100; // Reward for path existence
-            fitness -= result.pathCost; // Subtract cost
+            fitness -= result.getPathCost(); // Subtract cost
         }
 
-        result.pathCost = fitness;
+        result.setPathCost(fitness);
         return result;
     }
 
@@ -49,7 +49,7 @@ public class Fitness {
                 neighbor.addVisited(current);
                 // Add to path and continue searching...
                 result = dfs(roadMap, neighbor, end, visited, pathCost + neighbor.getTypeIndex(), path);
-                if (result.pathExists) {
+                if (result.isPathExists()) {
                     return result;
                 }
                 path.remove(path.size() - 1); // Backtrack
@@ -64,7 +64,7 @@ public class Fitness {
                 path.add(determineMove(current, neighbor)); // Add to path
                 result = dfs(roadMap, neighbor, end, visited, pathCost, path);  // Continue searching...
 
-                if (result.pathExists) {
+                if (result.isPathExists()) {
                     return result;
                 }
                 path.remove(path.size() - 1); // Backtrack

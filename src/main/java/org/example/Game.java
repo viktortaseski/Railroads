@@ -9,7 +9,7 @@ import java.util.Set;
 public class Game {
     public static int size;
     public static int numTrains;
-    public static Tile[][] map;
+    private static Tile[][] map;
     public static List<Train> TRAINS;
 
     public Game(int size, int numTrains) {
@@ -17,13 +17,13 @@ public class Game {
         Game.numTrains = numTrains;
     }
 
-    public void init(){
+    public void init() {
         map = new Tile[size][size];
         TRAINS = new ArrayList<>();
 
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                map[i][j] = Tile.randomRoad(i,j);
+                map[i][j] = Tile.randomRoad(i, j);
             }
         }
 
@@ -65,4 +65,7 @@ public class Game {
         }
     }
 
+    public static Tile[][] getMap() {
+        return map;
+    }
 }

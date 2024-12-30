@@ -7,7 +7,7 @@ import static org.example.Fitness.isValidConnection;
 
 public class GeneticAlgorithm {
 
-    public static int run(Game game, int iterations, int mode, Train train) {
+    public static PathResult run(Game game, int iterations, int mode, Train train) {
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         Random random = new Random();
         PathResult bestResult = new PathResult(false, Integer.MAX_VALUE, null, Integer.MAX_VALUE);
@@ -21,12 +21,15 @@ public class GeneticAlgorithm {
                 // Update bestResult only if the new path is valid and has a lower cost
                 if (result.isPathExists() && (result.getPathCost() < bestResult.getPathCost()) && result.getChanges() < bestResult.getChanges()) {
                     bestResult = result;
+                    train.setPath(bestResult.getPath());
+                    train.setPathCost(bestResult.getPathCost());
+                    return bestResult;
                 } else {
                     // Mutate the current path for exploration
                     mutatePath(train.getPath(), random);
                 }
 
-                System.out.println("Iteration " + i + ", Fitness: " + (result.getPathCost() - 5));
+                System.out.println("Iteration " + i + ", Fitness: " + result.getPathCost());
             }
         } else if (mode == 2) { // Parallel execution
             List<Callable<PathResult>> tasks = new ArrayList<>();
@@ -65,7 +68,7 @@ public class GeneticAlgorithm {
 
         train.setPathCost(bestResult.getPathCost());
         train.setPath(bestResult.getPath());
-        return bestResult.getPathCost();
+        return bestResult;
     }
 
     private static void mutatePath(List<String> path, Random random) {
@@ -131,7 +134,7 @@ public class GeneticAlgorithm {
             }
 
             if (!isValidConnection(currentTile, nextTile)) {
-                updateTileConnection(currentTile, nextTile, direction);
+                updateTileConnection(currentTile, nextTile);
                 bestResult.setPathCost(bestResult.getPathCost() + nextTile.getTypeIndex());
             }
 
@@ -164,7 +167,7 @@ public class GeneticAlgorithm {
     }
 
 
-    private static void updateTileConnection(Tile current, Tile next, String direction) {
+    static void updateTileConnection(Tile current, Tile next) {
         for (int i = 0; i < TileType.values().length - 2; i++) {
             for (int j = 0; j < Rotation.values().length; j++) {
                 current.setType(TileType.values()[i]);

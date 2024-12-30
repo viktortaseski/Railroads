@@ -1,7 +1,17 @@
 package org.example;
 import java.util.*;
 
+import static org.example.GeneticAlgorithm.updateTileConnection;
+
 class Fitness {
+
+    // Map rotations to the connections they enable
+    static int[][] connections = new int[][]{
+            {0b0101, 0b1010, 0b0101, 0b1010}, // STRAIGHT
+            {0b0011, 0b0110, 0b1100, 0b1001}, // TURN
+            {0b0111, 0b1110, 0b1101, 0b1011}, // THREEWAY
+            {0b1111, 0b1111, 0b1111, 0b1111}  // CROSS
+    };
 
     public static PathResult evaluate(Tile[][] map, Train train) {
         PathResult result = findPath(map, train.getStartTile(), train.getEndTile());
@@ -34,7 +44,7 @@ class Fitness {
             if (!visited.contains(neighbor) && isValidConnection(current, neighbor)) {
                 path.add(determineMove(current, neighbor));
                 neighbor.addVisited(current);
-                PathResult result = dfs(map, neighbor, end, visited, cost + neighbor.getTypeIndex(), path, changes);
+                PathResult result = dfs(map, neighbor, end, visited, cost, path, changes);  // If the tiles are already connected then the cost stays the same.
                 if (result.isPathExists()) {
                     return result;
                 }
@@ -42,7 +52,9 @@ class Fitness {
             }else {
                 // Case: dead end then go to the best neighbor and change the tileType so it makes a connection.
                 path.add(determineMove(current, neighbor));
-                PathResult result = dfs(map, neighbor, end, visited, cost + neighbor.getTypeIndex(), path, changes + 1);
+                updateTileConnection(current, neighbor);
+                PathResult result = dfs(map, neighbor, end, visited, cost + neighbor.getTypeIndex(), path, changes); // If no valid connection is found then we change a tile and add the cost.
+                result.setChanges(changes + 1); // A change is made, since neighboring tile doesn't connect.
                 if (result.isPathExists()) {
                     return result;
                 }
@@ -95,9 +107,17 @@ class Fitness {
             boolean isFirstMove = true; // This should be determined based on context (e.g., using a visited set or other logic)
 
             if (isFirstMove) {
-                // Treat TRAIN as a CROSS only on the first move
-                boolean neighborToCurrent = (0b1111 & (1 << oppDir)) != 0;
-                return neighborToCurrent;
+                // Treat TRAIN as a CROSS only on the first move it can go any direction.
+                boolean currentToNeighbor = (0b1111 & (1 << dir)) != 0;
+                boolean neighborToCurrent;
+                if (neighbor.getType() == TileType.STATION){
+                    neighborToCurrent = true;
+                } else if (neighbor.getType() == TileType.TRAIN) {
+                    neighborToCurrent = false;
+                } else{
+                    neighborToCurrent = (connections[neighbor.getTypeIndex()][neighbor.getRotationIndex()] & (1 << oppDir)) != 0;
+                }
+                return currentToNeighbor && neighborToCurrent;
             } else {
                 // Any other encounter with a TRAIN tile is invalid
                 return false;
@@ -108,21 +128,14 @@ class Fitness {
             return false; // Cannot connect to a TRAIN in any case except the first move
         }
 
-        if (neighbor.getType() == TileType.STATION || current.getType() == TileType.STATION) {
-            return true; // Always connect to a station
+        if (neighbor.getType() == TileType.STATION) {
+            return (0b1111 & (1 << dir)) != 0;  // Just check if the current tile is connecting to the station.
         }
 
-        // Map rotations to the connections they enable
-        int[][] connections = new int[][]{
-                {0b0101, 0b1010, 0b0101, 0b1010}, // STRAIGHT
-                {0b0011, 0b0110, 0b1100, 0b1001}, // TURN
-                {0b0111, 0b1110, 0b1101, 0b1011}, // THREEWAY
-                {0b1111, 0b1111, 0b1111, 0b1111}  // CROSS
-        };
 
         // Validate indices for non-TRAIN tiles
-        int currentType = current.getTypeIndex() - 1;
-        int neighborType = neighbor.getTypeIndex() - 1;
+        int currentType = current.getTypeIndex();
+        int neighborType = neighbor.getTypeIndex();
         int currentRotation = current.getRotationIndex();
         int neighborRotation = neighbor.getRotationIndex();
 

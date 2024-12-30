@@ -6,11 +6,13 @@ public class PathResult {
     private boolean pathExists;
     private int pathCost;
     private List<String> path;
+    private int changes;
 
-    PathResult(boolean pathExists, int pathCost, List<String> path) {
+    PathResult(boolean pathExists, int pathCost, List<String> path, int changes) {
         this.pathExists = pathExists;
         this.pathCost = pathCost;
         this.path = path;
+        this.changes = changes;
     }
 
     public boolean isPathExists() {
@@ -30,5 +32,11 @@ public class PathResult {
     }
     public void setPath(List<String> path) {
         this.path = path;
+    }
+    public int getChanges() {
+        return changes;
+    }
+    public void setChanges(int changes) {
+        this.changes = changes;
     }
 }

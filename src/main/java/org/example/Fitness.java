@@ -15,13 +15,13 @@ class Fitness {
     private static PathResult findPath(Tile[][] map, Tile start, Tile end) {
         Set<Tile> visited = new HashSet<>();
         List<String> path = new ArrayList<>();
-        return dfs(map, start, end, visited, 0, path);
+        return dfs(map, start, end, visited, 0, path, 0);
     }
 
-    private static PathResult dfs(Tile[][] map, Tile current, Tile end, Set<Tile> visited, int cost, List<String> path) {
+    private static PathResult dfs(Tile[][] map, Tile current, Tile end, Set<Tile> visited, int cost, List<String> path, int changes) {
         System.out.println("Visiting: (" + current.getX() + ", " + current.getY() + ") Current Path: " + path);
         if (current.equals(end)) {
-            return new PathResult(true, cost, new ArrayList<>(path));
+            return new PathResult(true, cost, new ArrayList<>(path), changes);
         }
 
         visited.add(current);
@@ -34,7 +34,7 @@ class Fitness {
             if (!visited.contains(neighbor) && isValidConnection(current, neighbor)) {
                 path.add(determineMove(current, neighbor));
                 neighbor.addVisited(current);
-                PathResult result = dfs(map, neighbor, end, visited, cost + neighbor.getTypeIndex(), path);
+                PathResult result = dfs(map, neighbor, end, visited, cost + neighbor.getTypeIndex(), path, changes);
                 if (result.isPathExists()) {
                     return result;
                 }
@@ -42,7 +42,7 @@ class Fitness {
             }else {
                 // Case: dead end then go to the best neighbor and change the tileType so it makes a connection.
                 path.add(determineMove(current, neighbor));
-                PathResult result = dfs(map, neighbor, end, visited, cost + neighbor.getTypeIndex(), path);
+                PathResult result = dfs(map, neighbor, end, visited, cost + neighbor.getTypeIndex(), path, changes + 1);
                 if (result.isPathExists()) {
                     return result;
                 }
@@ -51,7 +51,7 @@ class Fitness {
         }
 
         visited.remove(current);
-        return new PathResult(false, cost, path);
+        return new PathResult(false, cost, path, changes);
     }
 
     private static int calculateDistance(Tile a, Tile b) {

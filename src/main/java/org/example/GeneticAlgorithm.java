@@ -10,7 +10,7 @@ public class GeneticAlgorithm {
     public static int run(Game game, int iterations, int mode, Train train) {
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         Random random = new Random();
-        PathResult bestResult = new PathResult(false, Integer.MAX_VALUE, null);
+        PathResult bestResult = new PathResult(false, Integer.MAX_VALUE, null, Integer.MAX_VALUE);
 
         if (mode == 1) { // Sequential execution
             for (int i = 0; i < iterations; i++) {
@@ -19,14 +19,14 @@ public class GeneticAlgorithm {
                 System.out.println("Generated Path: " + result.getPath());
 
                 // Update bestResult only if the new path is valid and has a lower cost
-                if (result.isPathExists() && result.getPathCost() < bestResult.getPathCost()) {
+                if (result.isPathExists() && (result.getPathCost() < bestResult.getPathCost()) && result.getChanges() < bestResult.getChanges()) {
                     bestResult = result;
                 } else {
                     // Mutate the current path for exploration
                     mutatePath(train.getPath(), random);
                 }
 
-                System.out.println("Iteration " + i + ", Fitness: " + result.getPathCost());
+                System.out.println("Iteration " + i + ", Fitness: " + (result.getPathCost() - 5));
             }
         } else if (mode == 2) { // Parallel execution
             List<Callable<PathResult>> tasks = new ArrayList<>();
@@ -60,7 +60,7 @@ public class GeneticAlgorithm {
 
         // Apply the best path to the map if it exists
         if (bestResult.isPathExists()) {
-            applyBestPathToMap(Game.getMap(), bestResult.getPath());
+            applyBestPathToMap(Game.getMap(), bestResult);
         }
 
         train.setPathCost(bestResult.getPathCost());
@@ -107,7 +107,7 @@ public class GeneticAlgorithm {
         return copy;
     }
 
-    private static void applyBestPathToMap(Tile[][] map, List<String> path) {
+    private static void applyBestPathToMap(Tile[][] map, PathResult bestResult) {
         Tile currentTile = null;
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[i].length; j++) {
@@ -123,7 +123,7 @@ public class GeneticAlgorithm {
             throw new IllegalStateException("Start tile not found in the map.");
         }
 
-        for (String direction : path) {
+        for (String direction : bestResult.getPath()) {
             Tile nextTile = getNextTile(map, currentTile, direction);
             if (nextTile == null) {
                 System.out.println("Invalid (end of) path: Unable to find next tile.");
@@ -132,6 +132,7 @@ public class GeneticAlgorithm {
 
             if (!isValidConnection(currentTile, nextTile)) {
                 updateTileConnection(currentTile, nextTile, direction);
+                bestResult.setPathCost(bestResult.getPathCost() + nextTile.getTypeIndex());
             }
 
             currentTile = nextTile;

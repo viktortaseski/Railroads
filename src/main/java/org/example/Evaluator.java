@@ -28,7 +28,7 @@ public class Evaluator {
         System.out.println("Running time: " + (endTime - startTime) + " ms | " + iterations + " iterations");
 
         for (Train train: Game.TRAINS){
-            System.out.println("Train[" + train.getId() + "] (" + train.getStartTile().getX() + ", " + train.getStartTile().getY() + ") Cost = " + train.getPathCost() + " Path = " + train.getPath());
+            System.out.println("Train[" + train.getId() + "] (" + train.getStartTile().getX() + ", " + train.getStartTile().getY() + ") Cost = " + (train.getPathCost() - 5) + " Path = " + train.getPath());
         }
         System.out.println("Map state:");
         for (Tile[] row : Game.getMap()) {

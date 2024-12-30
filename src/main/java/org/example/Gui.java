@@ -12,7 +12,7 @@ public class Gui extends JPanel implements Runnable {
     private final BufferedImage[] tileImages = {
             ImageIO.read(new File("TileImages/roadTexture_01.png")),  // Straight   (Vertical)
             ImageIO.read(new File("TileImages/roadTexture_18.png")),  // Turn       (North - East)
-            ImageIO.read(new File("TileImages/roadTexture_29.png")),  // Threeway   (West - North - East)
+            ImageIO.read(new File("TileImages/roadTexture_29.png")),  // Threeway   (North - East - South)
             ImageIO.read(new File("TileImages/roadTexture_10.png")),  // Cross      (W, N, E and S)
             ImageIO.read(new File("TileImages/taxi.png")),            // Train
             ImageIO.read(new File("TileImages/pattern_16.png")),      // Station
@@ -22,7 +22,7 @@ public class Gui extends JPanel implements Runnable {
     public Gui() throws IOException {
         JFrame frame = new JFrame("Railroads Game");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setBounds(400, 0, 800, 830);
+        frame.setBounds(400, 0, 800, 800);
         frame.setResizable(false);
         frame.add(this);
         frame.setVisible(true);
@@ -44,7 +44,7 @@ public class Gui extends JPanel implements Runnable {
                 if ( tile != null ) {
                     int x = tile.getX() * 40;
                     int y = tile.getY() * 40;
-                    BufferedImage roadImage = tileImages[tile.getTypeIndex() - 1 ];
+                    BufferedImage roadImage = tileImages[tile.getTypeIndex()];
                     Graphics2D g2d = (Graphics2D) g.create();
                     g2d.rotate(Math.toRadians(90) * tile.getRotationIndex(), x + 20, y + 20);
                     g2d.drawImage(roadImage, x, y, 40, 40, null);

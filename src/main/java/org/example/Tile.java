@@ -48,6 +48,10 @@ public class Tile {
         visitedByTrains.add(tile);
     }
 
+    public boolean isStartTile(){
+        return this.getType() == TileType.TRAIN ;
+    }
+
     public int getX() {
         return x;
     }
@@ -71,6 +75,9 @@ public class Tile {
     }
     public int getRotationIndex(){
         switch (rotation) {
+            case ZERO -> {
+                return 0;
+            }
             case ONE -> {
                 return 1;
             }case TWO -> {
@@ -79,26 +86,26 @@ public class Tile {
                 return 3;
             }
             case null, default -> {
-                return 0;
+                return -1;
             }
         }
     }
     public int getTypeIndex(){
         switch (type) {
             case STRAIGHT -> {
-                return 1;
-            }case TURN -> {
-                return 2;
-            }case THREEWAY -> {
-                return 3;
-            }case CROSS -> {
-                return 4;
-            }case TRAIN -> {
-                return 5;
-            }case STATION -> {
-                return 6;
-            }default -> {
                 return 0;
+            }case TURN -> {
+                return 1;
+            }case THREEWAY -> {
+                return 2;
+            }case CROSS -> {
+                return 3;
+            }case TRAIN -> {
+                return 4;
+            }case STATION -> {
+                return 5;
+            }default -> {
+                return -1;
             }
 
         }

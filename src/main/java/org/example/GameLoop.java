@@ -1,10 +1,13 @@
 package org.example;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.sql.SQLOutput;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import static org.example.Main.pool;
 
 public class GameLoop implements Runnable {
     public static Queue<Integer> events = new ConcurrentLinkedQueue<>();
@@ -17,6 +20,7 @@ public class GameLoop implements Runnable {
     TileType tileType = null;
     Scanner scanner = new Scanner(System.in);
     int mode = 1;
+    Evaluator evaluator;
 
     @Override
     public void run() {
@@ -25,9 +29,14 @@ public class GameLoop implements Runnable {
         mode = scanner.nextInt();
         if (mode > 0 && mode < 4) {
             System.out.println("Creating game... Mode: " + mode);
-            Game game = new Game(10, 2);
-            Evaluator evaluator = new Evaluator(game, mode);
+            Game game = new Game(4, 1);
+            evaluator = new Evaluator(game, mode);
             game.init();
+            try {
+                pool.submit(new Gui());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }else {
             System.out.println("Invalid mode entered.");
         }
@@ -45,7 +54,7 @@ public class GameLoop implements Runnable {
             // Handle other game logic (tile placement, etc.)
             if (character == (int) 's') {
                     System.out.println("Current mode: " + mode);  // Print the current mode
-                    int score = Evaluator.evaluate();
+                    int score = evaluator.evaluate();
                     System.out.println("Score: " + score);
             } else if (Integer.parseInt(character.toString()) < Game.size && !enteredX) {
                 x = Integer.parseInt(character.toString());

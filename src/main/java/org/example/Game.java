@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Game {
-    public static int size;
+    public static int size = 10;
     public static int numTrains;
     private static Tile[][] map;
     public static List<Train> TRAINS;

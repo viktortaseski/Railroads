@@ -1,100 +1,185 @@
 package org.example;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
+import java.util.concurrent.*;
 
+import static org.example.Fitness.isValidConnection;
 
 public class GeneticAlgorithm {
 
-    public static int fitness;
-
-    public static int run(Game game, int iterations, int mode, Train train){
+    public static int run(Game game, int iterations, int mode, Train train) {
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        Random random = new Random(1000);
-        PathResult[] solutions = new PathResult[iterations];
-        PathResult bestFitness = new PathResult(false, Integer.MAX_VALUE, null);
+        Random random = new Random();
+        PathResult bestResult = new PathResult(false, Integer.MAX_VALUE, null);
 
-        if ( mode == 1 ){   // Sequential execution
-            for (int i = 0; i < iterations; i++){
-                solutions[i] = Fitness.evaluate(Game.getMap(), train);
-                if (solutions[i].getPathCost() < bestFitness.getPathCost()){
-                    System.out.println("Found better path.");
-                    bestFitness = solutions[i];
-                    mutatePath(bestFitness.getPath(), random);
-                    fitness = bestFitness.getPathCost();
+        if (mode == 1) { // Sequential execution
+            for (int i = 0; i < iterations; i++) {
+                Tile[][] mapCopy = copyMap(Game.getMap());
+                PathResult result = Fitness.evaluate(mapCopy, train);
+                System.out.println("Generated Path: " + result.getPath());
+
+                // Update bestResult only if the new path is valid and has a lower cost
+                if (result.isPathExists() && result.getPathCost() < bestResult.getPathCost()) {
+                    bestResult = result;
+                } else {
+                    // Mutate the current path for exploration
+                    mutatePath(train.getPath(), random);
                 }
-                System.out.println("Sequential Iteration, Fitness: " + fitness);
+
+                System.out.println("Iteration " + i + ", Fitness: " + result.getPathCost());
             }
-        } else if ( mode == 2 ) {   // Parallel execution
-            List<Callable<Void>> tasks = new ArrayList<>();
+        } else if (mode == 2) { // Parallel execution
+            List<Callable<PathResult>> tasks = new ArrayList<>();
             for (int i = 0; i < iterations; i++) {
                 tasks.add(() -> {
-                   //mutatePath(Game.map, random);
-                    //fitness = Fitness.evaluate(Game.map);
-                    System.out.println("Parallel Iteration, Fitness: " + fitness);
-                    return null;
+                    Tile[][] mapCopy = copyMap(Game.getMap());
+                    PathResult result = Fitness.evaluate(mapCopy, train);
+                    if (!result.isPathExists()) {
+                        mutatePath(train.getPath(), random);
+                    }
+                    return result;
                 });
-
             }
+
             try {
-                executor.invokeAll(tasks);
-            }catch (InterruptedException e){
+                List<Future<PathResult>> futures = executor.invokeAll(tasks);
+                for (Future<PathResult> future : futures) {
+                    PathResult result = future.get();
+                    if (result.isPathExists() && result.getPathCost() < bestResult.getPathCost()) {
+                        bestResult = result;
+                    }
+                }
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
-        } else if ( mode == 3 ) {   // Distributed
-            System.out.println("Distributed Iteration, Fitness: " + fitness);
-        }else{
+        } else {
             System.out.println("Invalid mode");
         }
 
         executor.shutdown();
-        return fitness;
+
+        // Apply the best path to the map if it exists
+        if (bestResult.isPathExists()) {
+            applyBestPathToMap(Game.getMap(), bestResult.getPath());
+        }
+
+        train.setPathCost(bestResult.getPathCost());
+        train.setPath(bestResult.getPath());
+        return bestResult.getPathCost();
     }
 
     private static void mutatePath(List<String> path, Random random) {
+
         if (path == null || path.isEmpty()) {
-            System.out.println("Path is null or empty. Skipping mutation.");
             return;
         }
 
-        // Choose a mutation type: 0 = add, 1 = remove, 2 = replace
         int mutationType = random.nextInt(3);
-
         switch (mutationType) {
-            case 0: // Add a direction to the path
-                String newDirection = getRandomDirection(random);
-                path.add(newDirection);
-                System.out.println("Added direction to path: " + newDirection);
+            case 0: // Add a random direction
+                path.add(getRandomDirection(random));
                 break;
-
-            case 1: // Remove a direction from the path
-                if (path.size() > 1) { // Ensure at least one direction remains
-                    String removedDirection = path.remove(random.nextInt(path.size()));
-                    System.out.println("Removed direction from path: " + removedDirection);
-                } else {
-                    System.out.println("Path is too short to remove a direction. Skipping mutation.");
+            case 1: // Remove a random direction
+                if (path.size() > 1) {
+                    path.remove(random.nextInt(path.size()));
                 }
                 break;
-
-            case 2: // Replace a direction in the path
-                int indexToReplace = random.nextInt(path.size());
-                String oldDirection = path.get(indexToReplace);
-                String replacementDirection = getRandomDirection(random);
-                path.set(indexToReplace, replacementDirection);
-                System.out.println("Replaced direction in path: " + oldDirection + " -> " + replacementDirection);
+            case 2: // Replace a random direction
+                int index = random.nextInt(path.size());
+                path.set(index, getRandomDirection(random));
                 break;
         }
-    }
 
+    }
 
     private static String getRandomDirection(Random random) {
         String[] directions = {"N", "E", "S", "W"};
         return directions[random.nextInt(directions.length)];
     }
 
+    private static Tile[][] copyMap(Tile[][] original) {
+        Tile[][] copy = new Tile[original.length][original[0].length];
+        for (int i = 0; i < original.length; i++) {
+            for (int j = 0; j < original[i].length; j++) {
+                copy[i][j] = original[i][j];
+            }
+        }
+        return copy;
+    }
 
+    private static void applyBestPathToMap(Tile[][] map, List<String> path) {
+        Tile currentTile = null;
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[i].length; j++) {
+                if (map[i][j].isStartTile()) {
+                    currentTile = map[i][j];
+                    break;
+                }
+            }
+            if (currentTile != null) break;
+        }
+
+        if (currentTile == null) {
+            throw new IllegalStateException("Start tile not found in the map.");
+        }
+
+        for (String direction : path) {
+            Tile nextTile = getNextTile(map, currentTile, direction);
+            if (nextTile == null) {
+                System.out.println("Invalid (end of) path: Unable to find next tile.");
+                return;
+            }
+
+            if (!isValidConnection(currentTile, nextTile)) {
+                updateTileConnection(currentTile, nextTile, direction);
+            }
+
+            currentTile = nextTile;
+        }
+    }
+
+    private static Tile getNextTile(Tile[][] map, Tile current, String direction) {
+        int x = current.getX();
+        int y = current.getY();
+        Tile nextTile = null;
+        switch (direction) {
+            case "N":
+                nextTile = (x > 0) ? map[x - 1][y] : null;
+                break;
+            case "S":
+                nextTile = (x < map.length - 1) ? map[x + 1][y] : null;
+                break;
+            case "E":
+                nextTile = (y < map[0].length - 1) ? map[x][y + 1] : null;
+                break;
+            case "W":
+                nextTile = (y > 0) ? map[x][y - 1] : null;
+                break;
+        }
+        if (nextTile == null) {
+            System.out.println("Invalid direction: " + direction + " from (" + x + ", " + y + ")");
+        }
+        return nextTile;
+    }
+
+
+    private static void updateTileConnection(Tile current, Tile next, String direction) {
+        for (int i = 0; i < TileType.values().length - 2; i++) {
+            for (int j = 0; j < Rotation.values().length; j++) {
+                current.setType(TileType.values()[i]);
+                current.setRotation(Rotation.values()[j]);
+                boolean connections = true;
+                for (Tile connected : current.getVisitedByTrains()) {
+                    if (!isValidConnection(current, connected)) {
+                        connections = false;
+                    }
+                }
+                if (isValidConnection(current, next) && connections) {
+                    return;
+                }
+            }
+        }
+        current.setType(TileType.CROSS);
+        current.setRotation(Rotation.values()[0]);
+    }
 }

@@ -29,7 +29,7 @@ public class GameLoop implements Runnable {
         mode = scanner.nextInt();
         if (mode > 0 && mode < 4) {
             System.out.println("Creating game... Mode: " + mode);
-            Game game = new Game(4, 1);
+            Game game = new Game(5, 2);
             evaluator = new Evaluator(game, mode);
             game.init();
             try {
@@ -54,7 +54,11 @@ public class GameLoop implements Runnable {
             // Handle other game logic (tile placement, etc.)
             if (character == (int) 's') {
                     System.out.println("Current mode: " + mode);  // Print the current mode
-                    int score = evaluator.evaluate();
+                    evaluator.evaluate();
+                    int score = 0;
+                    for (Train train: Game.TRAINS){
+                        score += train.getPathCost();
+                    }
                     System.out.println("Score: " + score);
             } else if (Integer.parseInt(character.toString()) < Game.size && !enteredX) {
                 x = Integer.parseInt(character.toString());

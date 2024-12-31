@@ -134,8 +134,10 @@ public class GeneticAlgorithm {
             }
 
             if (!isValidConnection(currentTile, nextTile)) {
-                updateTileConnection(currentTile, nextTile);
-                bestResult.setPathCost(bestResult.getPathCost() + nextTile.getTypeIndex());
+                if (currentTile.getType() != TileType.TRAIN) {
+                    updateTileConnection(currentTile, nextTile);
+                    bestResult.setPathCost(bestResult.getPathCost() + nextTile.getTypeIndex());
+                }
             }
 
             currentTile = nextTile;
@@ -170,15 +172,22 @@ public class GeneticAlgorithm {
     static void updateTileConnection(Tile current, Tile next) {
         for (int i = 0; i < TileType.values().length - 2; i++) {
             for (int j = 0; j < Rotation.values().length; j++) {
+                if (current.getType() == TileType.TRAIN || current.getType() == TileType.STATION) {
+                    return;
+                }
                 current.setType(TileType.values()[i]);
                 current.setRotation(Rotation.values()[j]);
+
                 boolean connections = true;
-                for (Tile connected : current.getVisitedByTrains()) {
-                    if (!isValidConnection(current, connected)) {
-                        connections = false;
+                if (current.getVisitedByTrains() != null) {
+                    for (Tile connected : current.getVisitedByTrains()) {
+                        if (!isValidConnection(current, connected)) {
+                            connections = false;
+                        }
                     }
                 }
-                if (isValidConnection(current, next) && connections) {
+
+                 if (isValidConnection(current, next) && connections) {
                     return;
                 }
             }

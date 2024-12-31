@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Game {
-    public static int size = 10;
+    public static int size;
     public static int numTrains;
     private static Tile[][] map;
     public static List<Train> TRAINS;
@@ -27,8 +27,8 @@ public class Game {
             }
         }
 
+        Set<String> usedCoordinates = new HashSet<>(); // To track used coordinates
         for (int i = 0; i < numTrains; i++) {
-            Set<String> usedCoordinates = new HashSet<>(); // To track used coordinates
 
             // Generate unique start coordinates for the train
             int x = new Random().nextInt(size);

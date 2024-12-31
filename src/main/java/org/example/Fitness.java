@@ -29,45 +29,63 @@ class Fitness {
     }
 
     private static PathResult dfs(Tile[][] map, Tile current, Tile end, Set<Tile> visited, int cost, List<String> path, int changes) {
+        // Base case: invalid start or end tile
+        if (current == null || end == null || !isValidTile(current) || !isValidTile(end)) {
+            return new PathResult(false, Integer.MAX_VALUE, new ArrayList<>(), Integer.MAX_VALUE);
+        }
+
+        // Log current state
         System.out.println("Visiting: (" + current.getX() + ", " + current.getY() + ") Current Path: " + path);
+
+        // Base case: reached the end tile
         if (current.equals(end)) {
             return new PathResult(true, cost, new ArrayList<>(path), changes);
         }
 
-        visited.add(current);
+        visited.add(current); // Mark the current tile as visited
+
+        // Get neighbors and sort by heuristic (distance to end)
         List<Tile> neighbors = new ArrayList<>(current.getNeighbors());
         neighbors.sort(Comparator.comparingInt(neighbor -> calculateDistance(neighbor, end)));
 
+        // Iterate through neighbors
         for (Tile neighbor : neighbors) {
-            System.out.println("THIS IS: " + isValidConnection(current, neighbor) + " CURRENT: (" + current.getX() + ", " + current.getY() + ")" + " (" + neighbor.getX() + ", " + neighbor.getY() + ")" );
-            // Give tiles that are connected priority
-            if (!visited.contains(neighbor) && isValidConnection(current, neighbor)) {
-                path.add(determineMove(current, neighbor));
+            if (visited.contains(neighbor)) continue; // Skip already visited tiles
+
+            String move = determineMove(current, neighbor);
+            if (isValidConnection(current, neighbor)) {
+                // Valid connection: proceed without changing tile
+                path.add(move);
                 neighbor.addVisited(current);
-                PathResult result = dfs(map, neighbor, end, visited, cost, path, changes);  // If the tiles are already connected then the cost stays the same.
+                PathResult result = dfs(map, neighbor, end, visited, cost, path, changes);
                 if (result.isPathExists()) {
-                    return result;
+                    return result; // Path found
                 }
-                path.remove(path.size() - 1);
-            }else {
-                // Case: dead end then go to the best neighbor and change the tileType so it makes a connection.
-                path.add(determineMove(current, neighbor));
+                path.remove(path.size() - 1); // Backtrack
+            } else {
+                // Invalid connection: modify the tile and increase cost
+                path.add(move);
                 updateTileConnection(current, neighbor);
-                PathResult result = dfs(map, neighbor, end, visited, cost + neighbor.getTypeIndex(), path, changes); // If no valid connection is found then we change a tile and add the cost.
-                result.setChanges(changes + 1); // A change is made, since neighboring tile doesn't connect.
+                changes++;
+                PathResult result = dfs(map, neighbor, end, visited, cost + neighbor.getTypeIndex(), path, changes);
                 if (result.isPathExists()) {
-                    return result;
+                    return result; // Path found
                 }
-                path.remove(path.size() - 1);
+                path.remove(path.size() - 1); // Backtrack
             }
         }
 
-        visited.remove(current);
-        return new PathResult(false, cost, path, changes);
+        visited.remove(current); // Backtrack: unmark the current tile
+        return new PathResult(false, cost, new ArrayList<>(path), changes); // No path found
     }
+
 
     private static int calculateDistance(Tile a, Tile b) {
         return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
+    }
+
+    private static boolean isValidTile(Tile tile) {
+        return tile.getX() >= 0 && tile.getX() < Game.size && tile.getY() >= 0 && tile.getY() < Game.size;
     }
 
     private static String determineMove(Tile from, Tile to) {
@@ -101,6 +119,10 @@ class Fitness {
         // Opposite direction
         int oppDir = (dir + 2) % 4;
 
+        if (neighbor.getType() == TileType.TRAIN) {
+            return false; // Cannot connect to a TRAIN in any case except the first move
+        }
+
         // Special handling for TRAIN tile
         if (current.getType() == TileType.TRAIN) {
             // Check if this is the starting move (neighbor is not visited yet)
@@ -124,9 +146,6 @@ class Fitness {
             }
         }
 
-        if (neighbor.getType() == TileType.TRAIN) {
-            return false; // Cannot connect to a TRAIN in any case except the first move
-        }
 
         if (neighbor.getType() == TileType.STATION) {
             return (0b1111 & (1 << dir)) != 0;  // Just check if the current tile is connecting to the station.

@@ -33,12 +33,13 @@ public class Evaluator {
             System.out.println("Train[" + train.getId() + "] (" + train.getStartTile().getX() + ", " + train.getStartTile().getY() + ") Cost = " + train.getPathCost() + " Changes = " + result.getChanges() + " Path = " + train.getPath());
         }
         System.out.println("Map state:");
-        for (Tile[] row : Game.getMap()) {
-            for (Tile tile : row) {
-                System.out.print("[" + tile.getType() + " " + tile.getRotation() + " (" + tile.getX() + ", " + tile.getY() + ")]" + "    ");
-            }
-            System.out.println();
-        }
+        Tile[][] map = Game.getMap();
+         for (int i = 0; i < map.length; i++) {
+             for (int j = 0; j < map[0].length; j++) {
+                 System.out.print("[" + map[i][j].getType() + " " + map[i][j].getRotation() + " (" + map[i][j].getX() + ", " + map[i][j].getY() + ")]" + "    ");
+             }
+             System.out.println();
+         }
 
 
         return totalPathCost;

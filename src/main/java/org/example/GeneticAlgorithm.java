@@ -11,9 +11,13 @@ public class GeneticAlgorithm {
         Random random = new Random();
         List<PathResult> population = initializePopulation(train, populationSize);
 
+        for (PathResult pathResult : population) {
+            System.out.println("POPULATION: " + pathResult.getPath());
+        }
+
         for (int i = 0; i < iterations; i++) {
             List<PathResult> nextGeneration = new ArrayList<>();
-
+            System.out.println("Generation " + i + " " + nextGeneration);
             // Elitism: Retain the best solutions
             int eliteCount = Math.max(1, populationSize / 10);
             population.sort(Comparator.comparingInt(PathResult::getFitness).reversed());
@@ -33,6 +37,7 @@ public class GeneticAlgorithm {
                     Fitness.setFitness(child, train);
                     nextGeneration.add(child);
                 }
+
             }
 
             population = nextGeneration;
@@ -51,8 +56,12 @@ public class GeneticAlgorithm {
             Fitness.evaluate(solution, train);
             population.add(solution);
         }
+        for (PathResult solution : population) {
+            System.out.println("Solution[" + solution.getId() + "]: " + solution.getPath());
+        }
         return population;
     }
+
     private static PathResult selectParent(List<PathResult> population, Random random) {
         // Roulette Wheel Selection with fallback for zero fitness
         int totalFitness = population.stream().mapToInt(PathResult::getFitness).sum();
@@ -159,7 +168,6 @@ public class GeneticAlgorithm {
                 System.out.println("Invalid (end of) path: Unable to find next tile.");
                 return;
             }
-
             if (!isValidConnection(currentTile, nextTile)) {
                 if (currentTile.getType() != TileType.TRAIN) {
                     updateTileConnection(currentTile, nextTile);
@@ -196,7 +204,7 @@ public class GeneticAlgorithm {
     static void updateTileConnection(Tile current, Tile next) {
         for (int i = 0; i < TileType.values().length - 2; i++) {
             for (int j = 0; j < Rotation.values().length; j++) {
-                if (current.getType() == TileType.TRAIN || current.getType() == TileType.STATION) {
+                if (current.getType() == TileType.TRAIN || next.getType() == TileType.STATION) {
                     return;
                 }
                 current.setType(TileType.values()[i]);

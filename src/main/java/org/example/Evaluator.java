@@ -10,7 +10,7 @@ public class Evaluator {
     }
 
      int evaluate() {
-        int iterations = 1000;
+        int generations = 50;
         int totalPathCost = 0;
          PathResult result = null;
 
@@ -23,16 +23,16 @@ public class Evaluator {
 
         long startTime = System.currentTimeMillis();
         for (Train train: Game.TRAINS){
-            result = GeneticAlgorithm.run(iterations, 10, train);
+            result = GeneticAlgorithm.run(generations, 10, train);
             totalPathCost = result.getPathCost();
             train.setBestResult(result);
-            GeneticAlgorithm.applyBestPathToMap(game.getMap(), result);
+            GeneticAlgorithm.applyBestPathToMap(Game.getMap(), result);
         }
         long endTime = System.currentTimeMillis();
-        System.out.println("Running time: " + (endTime - startTime) + " ms | " + iterations + " iterations");
+        System.out.println("Running time: " + (endTime - startTime) + " ms | " + generations + " generations");
 
         for (Train train: Game.TRAINS){
-            System.out.println("Train[" + train.getId() + "] (" + train.getStartTile().getX() + ", " + train.getStartTile().getY() + ") Cost = " + train.getBestResult().getPathCost() + " Distance = " + result.getDistance() + " Path = " + train.getBestResult().getPath());
+            System.out.println("Train[" + train.getId() + "] (" + train.getStartTile().getX() + ", " + train.getStartTile().getY() + ") Cost = " + train.getBestResult().getPathCost() + " Distance = " + result.getDistance() + " Path = " + train.getBestResult().getPath() + "Path reached: " + train.getBestResult().isPathExists() + " Path Fitness: " + train.getBestResult().getFitness());
         }
         System.out.println("Map state:");
         Tile[][] map = Game.getMap();

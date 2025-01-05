@@ -31,21 +31,21 @@ class Fitness {
     public static void setFitness(PathResult solution, Train train) {
         Tile current = train.getStartTile();
         Tile[][] map = copyMap(Game.getMap());
-        for (String direction : solution.getPath()){
+        for (String direction : solution.getPath()) {
             Tile next = GeneticAlgorithm.getNextTile(map, current, direction);
             if (next == null) {
                 return;
             }
 
             if (!isValidConnection(current, next)) {
-                if (current.getType() != TileType.TRAIN){
+                if (current.getType() != TileType.TRAIN) {
                     solution.setPathCost(solution.getPathCost() + calculateUpdateCost(current, next));
                 }
             }
             current = next;
         }
         solution.setDistance(calculateDistance(current, train.getEndTile()));
-        if (current.equals(train.getEndTile())){
+        if (current.equals(train.getEndTile())) {
             solution.setPathExists(true);
         }
     }
@@ -66,14 +66,16 @@ class Fitness {
             return new PathResult(false, Integer.MAX_VALUE, path, Integer.MAX_VALUE);
         }
 
-        // Log current state
-        System.out.println("Visiting: (" + current.getX() + ", " + current.getY() + ") Current Path" + solution.getId() + ": " + solution.getPath());
-
         // Base case: reached the end tile
         if (current.equals(end)) {
-            path.add(determineMove(current,end));
+            path.add(determineMove(current, end));
             solution.setPath(path);
             return new PathResult(true, cost, solution.getPath(), 0);
+        }
+
+        // Skip revisiting already visited tiles
+        if (visited.contains(current)) {
+            return new PathResult(false, cost, solution.getPath(), calculateDistance(current, end));
         }
 
         visited.add(current); // Mark the current tile as visited
@@ -92,35 +94,46 @@ class Fitness {
         yNeighbors[1] = (y - 1 >= 0) ? map[x][y - 1] : null;            // Up       N
 
         Tile closerNeighbor;
+        Tile alternateNeighbor;
 
         if (direction == 0) { // Explore X neighbors
             closerNeighbor = getCloserNeighbor(xNeighbors[0], xNeighbors[1], end);
-            if (closerNeighbor != null && isValidConnection(current, closerNeighbor)) {
+            alternateNeighbor = (closerNeighbor == xNeighbors[0]) ? xNeighbors[1] : xNeighbors[0];
+
+            // Try closerNeighbor first
+            if (closerNeighbor != null && !visited.contains(closerNeighbor) && isValidConnection(current, closerNeighbor) && isValidTile(closerNeighbor)) {
                 path.add(determineMove(current, closerNeighbor));
                 solution.setPath(path);
-                solution = dfs(map, closerNeighbor, end, visited, cost + 1, solution);
-                if (solution.isPathExists()){
-                    return solution;
-                }
+                return dfs(map, closerNeighbor, end, visited, cost + 1, solution);
+            }
+
+            // Fallback to alternateNeighbor
+            if (alternateNeighbor != null && !visited.contains(alternateNeighbor) && isValidConnection(current, alternateNeighbor) && isValidTile(alternateNeighbor)) {
+                path.add(determineMove(current, alternateNeighbor));
+                solution.setPath(path);
+                return dfs(map, alternateNeighbor, end, visited, cost + 1, solution);
             }
         } else { // Explore Y neighbors
             closerNeighbor = getCloserNeighbor(yNeighbors[0], yNeighbors[1], end);
-            if (closerNeighbor != null && isValidConnection(current, closerNeighbor)) {
+            alternateNeighbor = (closerNeighbor == yNeighbors[0]) ? yNeighbors[1] : yNeighbors[0];
+
+            // Try closerNeighbor first
+            if (closerNeighbor != null && !visited.contains(closerNeighbor) && isValidConnection(current, closerNeighbor) && isValidTile(closerNeighbor)) {
                 path.add(determineMove(current, closerNeighbor));
                 solution.setPath(path);
-                solution = dfs(map, closerNeighbor, end, visited, cost + 1, solution);
-                if (solution.isPathExists()){
-                    return solution;
-                }
+                return dfs(map, closerNeighbor, end, visited, cost + 1, solution);
+            }
+
+            // Fallback to alternateNeighbor
+            if (alternateNeighbor != null && !visited.contains(alternateNeighbor) && isValidConnection(current, alternateNeighbor) && isValidTile(alternateNeighbor)) {
+                path.add(determineMove(current, alternateNeighbor));
+                solution.setPath(path);
+                return dfs(map, alternateNeighbor, end, visited, cost + 1, solution);
             }
         }
 
-        if (solution.isPathExists()) {
-            return new PathResult(true, solution.getDistance(), path, solution.getPathCost());
-        }
-
-        visited.remove(current); // Backtrack: unmark the current tile
-        return new PathResult(false, cost, solution.getPath(), solution.getDistance()); // No path found
+        // No valid path found, do not backtrack
+        return new PathResult(false, cost, solution.getPath(), calculateDistance(current, end));
     }
 
 
@@ -221,11 +234,6 @@ class Fitness {
         int currentRotation = current.getRotationIndex();
         int neighborRotation = neighbor.getRotationIndex();
 
-//        System.out.println("Current Type Index: " + currentType);
-//        System.out.println("Neighbor Type Index: " + neighborType);
-//        System.out.println("Current Rotation Index: " + currentRotation);
-//        System.out.println("Neighbor Rotation Index: " + neighborRotation);
-//        System.out.println("Connections Array Dimensions: " + connections.length + "x" + connections[0].length);
         if (currentType < 0 || currentType >= connections.length ||
                 neighborType < 0 || neighborType >= connections.length ||
                 currentRotation < 0 || currentRotation >= 4 || neighborRotation < 0 || neighborRotation >= 4) {

@@ -2,7 +2,6 @@ package org.example;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.sql.SQLOutput;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -29,7 +28,7 @@ public class GameLoop implements Runnable {
         mode = scanner.nextInt();
         if (mode > 0 && mode < 4) {
             System.out.println("Creating game... Mode: " + mode);
-            Game game = new Game(5, 2);
+            Game game = new Game(5, 1);
             evaluator = new Evaluator(game, mode);
             game.init();
             try {
@@ -57,7 +56,7 @@ public class GameLoop implements Runnable {
                     evaluator.evaluate();
                     int score = 0;
                     for (Train train: Game.TRAINS){
-                        score += train.getPathCost();
+                        score += train.getBestResult().getPathCost();
                     }
                     System.out.println("Score: " + score);
             } else if (Integer.parseInt(character.toString()) < Game.size && !enteredX) {

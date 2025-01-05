@@ -3,21 +3,32 @@ package org.example;
 import java.util.List;
 
 public class PathResult {
+    private int id;
     private boolean pathExists;
     private int pathCost;
     private List<String> path;
-    private int changes;
+    private int distance;
+    private int fitness;
 
-    PathResult(boolean pathExists, int pathCost, List<String> path, int changes) {
+    PathResult(boolean pathExists, int pathCost, List<String> path, int distance) {
         this.pathExists = pathExists;
         this.pathCost = pathCost;
         this.path = path;
-        this.changes = changes;
+        this.distance = distance;
+        this.fitness = 0;
+    }
+    PathResult(PathResult pathResult) {
+        this.pathExists = pathResult.pathExists;
+        this.pathCost = pathResult.pathCost;
+        this.path = pathResult.path;
+        this.distance = pathResult.distance;
+        this.fitness = pathResult.fitness;
+        this.id = pathResult.id;
     }
 
-    public boolean isPathExists() {
-        return pathExists;
-    }
+    public int getId() {return id;}
+    public void setId(int id) {this.id = id;}
+    public boolean isPathExists() { return pathExists; }
     public int getPathCost() {
         return pathCost;
     }
@@ -33,10 +44,12 @@ public class PathResult {
     public void setPath(List<String> path) {
         this.path = path;
     }
-    public int getChanges() {
-        return changes;
+    public int getDistance() {
+        return distance;
     }
-    public void setChanges(int changes) {
-        this.changes = changes;
+    public void setDistance(int distance) {
+        this.distance = distance;
     }
+    public int getFitness() { return fitness; }
+    public void setFitness(int fitness) { this.fitness = fitness; }
 }

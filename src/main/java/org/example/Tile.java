@@ -19,6 +19,13 @@ public class Tile {
         this.type = type;
         visitedByTrains = new ArrayList<>();
     }
+    Tile (Tile tile) {
+        this.x = tile.x;
+        this.y = tile.y;
+        this.rotation = tile.rotation;
+        this.type = tile.type;
+        this.visitedByTrains = tile.visitedByTrains;
+    }
 
     public static Tile randomRoad(int x, int y) {
         Random random = new Random();

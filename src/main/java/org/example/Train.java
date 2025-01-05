@@ -6,16 +6,14 @@ import java.util.List;
 public class Train {
     private Tile startTile;
     private Tile endTile;
-    private int pathCost;
-    private List<String> path;
+    private PathResult bestResult;
     private int id;
 
     public Train(Tile startTile, Tile endTile) {
         this.startTile = startTile;
         this.endTile = endTile;
-        this.pathCost = 0;
         this.id = 0;
-        this.path = new ArrayList<>();
+        this.bestResult = new PathResult(false, 0, new ArrayList<>(), Integer.MAX_VALUE);
     }
     public Tile getStartTile() {
         return startTile;
@@ -23,12 +21,12 @@ public class Train {
     public Tile getEndTile() {
         return endTile;
     }
-    public int getPathCost() {
-        return pathCost;
-    }
 
-    public void setPathCost(int pathCost) {
-        this.pathCost = pathCost;
+    public PathResult getBestResult() {
+        return bestResult;
+    }
+    public void setBestResult(PathResult bestResult) {
+        this.bestResult = bestResult;
     }
 
     public int getId() {
@@ -36,11 +34,5 @@ public class Train {
     }
     public void setId(int id) {
         this.id = id;
-    }
-    public List<String> getPath() {
-        return path;
-    }
-    public void setPath(List<String> path) {
-        this.path = path;
     }
 }

@@ -1,7 +1,10 @@
 package org.example;
+
 import java.util.*;
 
+import static org.example.GeneticAlgorithm.copyMap;
 import static org.example.GeneticAlgorithm.updateTileConnection;
+
 
 class Fitness {
 
@@ -13,72 +16,132 @@ class Fitness {
             {0b1111, 0b1111, 0b1111, 0b1111}  // CROSS
     };
 
-    public static PathResult evaluate(Tile[][] map, Train train) {
-        PathResult result = findPath(map, train.getStartTile(), train.getEndTile());
-        int fitness = result.isPathExists() ? 100 - result.getPathCost() : -100;
-
-        train.setPath(result.getPath());
-        train.setPathCost(fitness);
-        return result;
+    public static PathResult evaluate(PathResult solution, Train train) {
+        int fitness = solution.getFitness();
+        if (solution.isPathExists()) {
+            fitness += 1000;
+        }
+        fitness -= solution.getPathCost();
+        fitness -= solution.getDistance();  // Reward closer to station (Smaller the distance smaller the subtraction)
+        solution.setFitness(fitness);
+        train.setBestResult(solution);
+        return solution;
     }
 
-    private static PathResult findPath(Tile[][] map, Tile start, Tile end) {
+    public static void setFitness(PathResult solution, Train train) {
+        Tile current = train.getStartTile();
+        Tile[][] map = copyMap(Game.getMap());
+        for (String direction : solution.getPath()){
+            Tile next = GeneticAlgorithm.getNextTile(map, current, direction);
+            if (next == null) {
+                return;
+            }
+
+            if (!isValidConnection(current, next)) {
+                if (current.getType() != TileType.TRAIN){
+                    solution.setPathCost(solution.getPathCost() + calculateUpdateCost(current, next));
+                }
+            }
+            current = next;
+        }
+        solution.setDistance(calculateDistance(current, train.getEndTile()));
+        if (current.equals(train.getEndTile())){
+            solution.setPathExists(true);
+        }
+    }
+
+    static PathResult findPath(Tile[][] map, Train train) {
         Set<Tile> visited = new HashSet<>();
         List<String> path = new ArrayList<>();
-        return dfs(map, start, end, visited, 0, path, 0);
+        Tile startTile = train.getStartTile();
+        Tile endTile = train.getEndTile();
+        PathResult pathResult = new PathResult(false, 0, path, calculateDistance(startTile, endTile));
+        return dfs(map, startTile, endTile, visited, pathResult.getPathCost(), pathResult);
     }
 
-    private static PathResult dfs(Tile[][] map, Tile current, Tile end, Set<Tile> visited, int cost, List<String> path, int changes) {
+    private static PathResult dfs(Tile[][] map, Tile current, Tile end, Set<Tile> visited, int cost, PathResult solution) {
         // Base case: invalid start or end tile
+        List<String> path = solution.getPath();
         if (current == null || end == null || !isValidTile(current) || !isValidTile(end)) {
-            return new PathResult(false, Integer.MAX_VALUE, new ArrayList<>(), Integer.MAX_VALUE);
+            return new PathResult(false, Integer.MAX_VALUE, path, Integer.MAX_VALUE);
         }
 
         // Log current state
-        System.out.println("Visiting: (" + current.getX() + ", " + current.getY() + ") Current Path: " + path);
+        System.out.println("Visiting: (" + current.getX() + ", " + current.getY() + ") Current Path" + solution.getId() + ": " + solution.getPath());
 
         // Base case: reached the end tile
         if (current.equals(end)) {
-            return new PathResult(true, cost, new ArrayList<>(path), changes);
+            path.add(determineMove(current,end));
+            solution.setPath(path);
+            return new PathResult(true, cost, solution.getPath(), 0);
         }
 
         visited.add(current); // Mark the current tile as visited
 
-        // Get neighbors and sort by heuristic (distance to end)
-        List<Tile> neighbors = new ArrayList<>(current.getNeighbors());
-        neighbors.sort(Comparator.comparingInt(neighbor -> calculateDistance(neighbor, end)));
+        int x = current.getX();
+        int y = current.getY();
+        int direction = new Random().nextInt(2); // Randomly follow x or y-axis
 
-        // Iterate through neighbors
-        for (Tile neighbor : neighbors) {
-            if (visited.contains(neighbor)) continue; // Skip already visited tiles
+        // Define potential neighbors safely
+        Tile[] xNeighbors = new Tile[2];
+        xNeighbors[0] = (x + 1 < map.length) ? map[x + 1][y] : null;    // Right    E
+        xNeighbors[1] = (x - 1 >= 0) ? map[x - 1][y] : null;            // Left     W
 
-            String move = determineMove(current, neighbor);
-            if (isValidConnection(current, neighbor)) {
-                // Valid connection: proceed without changing tile
-                path.add(move);
-                neighbor.addVisited(current);
-                PathResult result = dfs(map, neighbor, end, visited, cost, path, changes);
-                if (result.isPathExists()) {
-                    return result; // Path found
+        Tile[] yNeighbors = new Tile[2];
+        yNeighbors[0] = (y + 1 < map[0].length) ? map[x][y + 1] : null; // Down     S
+        yNeighbors[1] = (y - 1 >= 0) ? map[x][y - 1] : null;            // Up       N
+
+        Tile closerNeighbor;
+
+        if (direction == 0) { // Explore X neighbors
+            closerNeighbor = getCloserNeighbor(xNeighbors[0], xNeighbors[1], end);
+            if (closerNeighbor != null && isValidConnection(current, closerNeighbor)) {
+                path.add(determineMove(current, closerNeighbor));
+                solution.setPath(path);
+                solution = dfs(map, closerNeighbor, end, visited, cost + 1, solution);
+                if (solution.isPathExists()){
+                    return solution;
                 }
-                path.remove(path.size() - 1); // Backtrack
-            } else {
-                // Invalid connection: modify the tile and increase cost
-                path.add(move);
-                updateTileConnection(current, neighbor);
-                changes++;
-                PathResult result = dfs(map, neighbor, end, visited, cost + neighbor.getTypeIndex(), path, changes);
-                if (result.isPathExists()) {
-                    return result; // Path found
+            }
+        } else { // Explore Y neighbors
+            closerNeighbor = getCloserNeighbor(yNeighbors[0], yNeighbors[1], end);
+            if (closerNeighbor != null && isValidConnection(current, closerNeighbor)) {
+                path.add(determineMove(current, closerNeighbor));
+                solution.setPath(path);
+                solution = dfs(map, closerNeighbor, end, visited, cost + 1, solution);
+                if (solution.isPathExists()){
+                    return solution;
                 }
-                path.remove(path.size() - 1); // Backtrack
             }
         }
 
+        if (solution.isPathExists()) {
+            return new PathResult(true, solution.getDistance(), path, solution.getPathCost());
+        }
+
         visited.remove(current); // Backtrack: unmark the current tile
-        return new PathResult(false, cost, new ArrayList<>(path), changes); // No path found
+        return new PathResult(false, cost, solution.getPath(), solution.getDistance()); // No path found
     }
 
+
+    private static Tile getCloserNeighbor(Tile neighbor1, Tile neighbor2, Tile end) {
+        if (neighbor1 != null && neighbor2 != null) {
+            return calculateDistance(neighbor1, end) < calculateDistance(neighbor2, end) ? neighbor1 : neighbor2;
+        } else if (neighbor1 != null) {
+            return neighbor1;
+        } else if (neighbor2 != null) {
+            return neighbor2;
+        }
+        return null;
+    }
+
+    static int calculateUpdateCost(Tile current, Tile next) {
+        Tile copyCurrent = new Tile(current);
+        Tile copyNext = new Tile(next);
+
+        updateTileConnection(copyCurrent, copyNext);
+        return copyCurrent.getTypeIndex();
+    }
 
     private static int calculateDistance(Tile a, Tile b) {
         return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
@@ -89,10 +152,10 @@ class Fitness {
     }
 
     private static String determineMove(Tile from, Tile to) {
-        if (to.getX() == from.getX() && to.getY() == from.getY() - 1) return "N";
-        if (to.getX() == from.getX() && to.getY() == from.getY() + 1) return "S";
-        if (to.getX() == from.getX() - 1 && to.getY() == from.getY()) return "W";
-        if (to.getX() == from.getX() + 1 && to.getY() == from.getY()) return "E";
+        if (to.getX() == from.getX() && to.getY() == from.getY() - 1) return "W";
+        if (to.getX() == from.getX() && to.getY() == from.getY() + 1) return "E";
+        if (to.getX() == from.getX() - 1 && to.getY() == from.getY()) return "N";
+        if (to.getX() == from.getX() + 1 && to.getY() == from.getY()) return "S";
         return "";
     }
 
@@ -103,14 +166,14 @@ class Fitness {
         int neighborY = neighbor.getY();
 
         // Determine the direction of the neighbor relative to the current tile
-        int dir = -1;
-        if (neighborX == currentX + 1) {
+        int dir;
+        if (neighborY == currentY + 1) {
             dir = 1; // Right
-        } else if (neighborX == currentX - 1) {
-            dir = 3; // Left
-        } else if (neighborY == currentY + 1) {
-            dir = 2; // Down
         } else if (neighborY == currentY - 1) {
+            dir = 3; // Left
+        } else if (neighborX == currentX + 1) {
+            dir = 2; // Down
+        } else if (neighborX == currentX - 1) {
             dir = 0; // Up
         } else {
             return false; // Neighbor is not adjacent
@@ -132,11 +195,11 @@ class Fitness {
                 // Treat TRAIN as a CROSS only on the first move it can go any direction.
                 boolean currentToNeighbor = (0b1111 & (1 << dir)) != 0;
                 boolean neighborToCurrent;
-                if (neighbor.getType() == TileType.STATION){
+                if (neighbor.getType() == TileType.STATION) {
                     neighborToCurrent = true;
                 } else if (neighbor.getType() == TileType.TRAIN) {
                     neighborToCurrent = false;
-                } else{
+                } else {
                     neighborToCurrent = (connections[neighbor.getTypeIndex()][neighbor.getRotationIndex()] & (1 << oppDir)) != 0;
                 }
                 return currentToNeighbor && neighborToCurrent;
@@ -147,8 +210,8 @@ class Fitness {
         }
 
 
-        if (neighbor.getType() == TileType.STATION) {
-            return (0b1111 & (1 << dir)) != 0;  // Just check if the current tile is connecting to the station.
+        if (neighbor.getType() == TileType.STATION || current.getType() == TileType.STATION) {
+            return (0b1111 & (1 << dir)) != 0 && (0b1111 & (1 << oppDir)) != 0;  // Just check if the current tile is connecting to the station.
         }
 
 
@@ -158,6 +221,11 @@ class Fitness {
         int currentRotation = current.getRotationIndex();
         int neighborRotation = neighbor.getRotationIndex();
 
+//        System.out.println("Current Type Index: " + currentType);
+//        System.out.println("Neighbor Type Index: " + neighborType);
+//        System.out.println("Current Rotation Index: " + currentRotation);
+//        System.out.println("Neighbor Rotation Index: " + neighborRotation);
+//        System.out.println("Connections Array Dimensions: " + connections.length + "x" + connections[0].length);
         if (currentType < 0 || currentType >= connections.length ||
                 neighborType < 0 || neighborType >= connections.length ||
                 currentRotation < 0 || currentRotation >= 4 || neighborRotation < 0 || neighborRotation >= 4) {
@@ -170,6 +238,29 @@ class Fitness {
         boolean neighborToCurrent = (connections[neighborType][neighborRotation] & (1 << oppDir)) != 0;
 
         return currentToNeighbor && neighborToCurrent;
+    }
+
+    public static List<Tile> getNeighboringTile(Tile[][] map, Tile current) {
+        List<Tile> neighbors = new ArrayList<>();
+        int x = current.getX();
+        int y = current.getY();
+        // Check left neighbor (x-1, y)
+        if (x > 0) {
+            neighbors.add(map[x - 1][y]);
+        }
+        // Check right neighbor (x+1, y)
+        if (x < map.length - 1) {
+            neighbors.add(map[x + 1][y]);
+        }
+        // Check top neighbor (x, y+1)
+        if (y < map[0].length - 1) {
+            neighbors.add(map[x][y + 1]);
+        }
+        // Check bottom neighbor (x, y-1)
+        if (y > 0) {
+            neighbors.add(map[x][y - 1]);
+        }
+        return neighbors;
     }
 
 

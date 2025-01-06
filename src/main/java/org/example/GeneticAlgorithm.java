@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import static org.example.Fitness.isValidConnection;
+import static org.example.Fitness.setFitness;
 
 public class GeneticAlgorithm {
 
@@ -17,7 +18,12 @@ public class GeneticAlgorithm {
 
         for (int i = 0; i < iterations; i++) {
             List<PathResult> nextGeneration = new ArrayList<>();
-            System.out.println("Generation " + i + " " + nextGeneration);
+            for (PathResult pathResult : population) {
+                Fitness.evaluate(pathResult, train);
+                setFitness(pathResult, train);
+                System.out.println("Generation " + i + ": Train[" + train.getId() + "] Fitness: " + pathResult.getFitness() + " Path[" + pathResult.getId() + "] " + pathResult.getPath() );
+            }
+            System.out.println();
             // Elitism: Retain the best solutions
             int eliteCount = Math.max(1, populationSize / 10);
             population.sort(Comparator.comparingInt(PathResult::getFitness).reversed());
@@ -34,6 +40,7 @@ public class GeneticAlgorithm {
                     if (!child.isPathExists()) {
                         mutate(child.getPath(), random);
                     }
+                    Fitness.evaluate(child, train);
                     Fitness.setFitness(child, train);
                     nextGeneration.add(child);
                 }
@@ -146,17 +153,10 @@ public class GeneticAlgorithm {
         return copy;
     }
 
-    public static void applyBestPathToMap(Tile[][] map, PathResult bestResult) {
+    public static void applyBestPathToMap(Tile[][] map, PathResult bestResult, Train train) {
         Tile currentTile = null;
-        for (int i = 0; i < map.length; i++) {
-            for (int j = 0; j < map[i].length; j++) {
-                if (map[i][j].isStartTile()) {
-                    currentTile = map[i][j];
-                    break;
-                }
-            }
-            if (currentTile != null) break;
-        }
+
+        currentTile = train.getStartTile();
 
         if (currentTile == null) {
             throw new IllegalStateException("Start tile not found in the map.");

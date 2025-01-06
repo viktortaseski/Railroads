@@ -26,7 +26,7 @@ public class Evaluator {
             result = GeneticAlgorithm.run(generations, 10, train);
             totalPathCost = result.getPathCost();
             train.setBestResult(result);
-            GeneticAlgorithm.applyBestPathToMap(Game.getMap(), result);
+            GeneticAlgorithm.applyBestPathToMap(Game.getMap(), result, train);
         }
         long endTime = System.currentTimeMillis();
         System.out.println("Running time: " + (endTime - startTime) + " ms | " + generations + " generations");

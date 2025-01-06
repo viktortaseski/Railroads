@@ -17,12 +17,13 @@ class Fitness {
     };
 
     public static PathResult evaluate(PathResult solution, Train train) {
-        int fitness = solution.getFitness();
+        int fitness = 0;
         if (solution.isPathExists()) {
             fitness += 1000;
         }
-        fitness -= solution.getPathCost();
-        fitness -= solution.getDistance();  // Reward closer to station (Smaller the distance smaller the subtraction)
+        fitness -= solution.getPathCost();      // Reward lower cost paths
+        fitness -= solution.getDistance();      // Reward closer to station (Smaller the distance smaller the subtraction)
+        fitness -= solution.getPath().size();   // Reward shorter paths.
         solution.setFitness(fitness);
         train.setBestResult(solution);
         return solution;
@@ -68,7 +69,7 @@ class Fitness {
 
         // Base case: reached the end tile
         if (current.equals(end)) {
-            path.add(determineMove(current, end));
+            //path.add(determineMove(current, end));
             solution.setPath(path);
             return new PathResult(true, cost, solution.getPath(), 0);
         }
@@ -165,14 +166,15 @@ class Fitness {
     }
 
     private static String determineMove(Tile from, Tile to) {
-        if (to.getX() == from.getX() && to.getY() == from.getY() - 1) return "W";
-        if (to.getX() == from.getX() && to.getY() == from.getY() + 1) return "E";
-        if (to.getX() == from.getX() - 1 && to.getY() == from.getY()) return "N";
-        if (to.getX() == from.getX() + 1 && to.getY() == from.getY()) return "S";
+        if (to.getX() == from.getX() && to.getY() == from.getY() - 1) return "W (" + to.getX() + "," + to.getY() + ")";
+        if (to.getX() == from.getX() && to.getY() == from.getY() + 1) return "E (" + to.getX() + "," + to.getY() + ")";
+        if (to.getX() == from.getX() - 1 && to.getY() == from.getY()) return "N (" + to.getX() + "," + to.getY() + ")";
+        if (to.getX() == from.getX() + 1 && to.getY() == from.getY()) return "S (" + to.getX() + "," + to.getY() + ")";
         return "";
     }
 
     public static boolean isValidConnection(Tile current, Tile neighbor) {
+        if (current == null || neighbor == null || !isValidTile(current) || !isValidTile(neighbor)) return false;
         int currentX = current.getX();
         int currentY = current.getY();
         int neighborX = neighbor.getX();
@@ -222,9 +224,12 @@ class Fitness {
             }
         }
 
+        if (current.getType() == TileType.STATION){
+            return (0b1111 & (1 << oppDir)) != 0;
+        }
 
-        if (neighbor.getType() == TileType.STATION || current.getType() == TileType.STATION) {
-            return (0b1111 & (1 << dir)) != 0 && (0b1111 & (1 << oppDir)) != 0;  // Just check if the current tile is connecting to the station.
+        if (neighbor.getType() == TileType.STATION) {
+            return (connections[current.getTypeIndex()][current.getRotationIndex()] & (1 << dir)) != 0;  // Just check if the current tile is connecting to the station.
         }
 
 

@@ -17,13 +17,16 @@ class Fitness {
     };
 
     public static PathResult evaluate(PathResult solution, Train train) {
-        int fitness = 0;
+        int fitness = 50;                           // Starting fitness.
+        fitness -= solution.getPathCost();          // Reward lower cost paths
+        fitness -= solution.getDistance() ;         // Reward closer to station (Smaller the distance smaller the subtraction)
+        fitness += solution.getPath().size();       //  Reward exploration
+
         if (solution.isPathExists()) {
-            fitness += 1000;
+            fitness += 50;                             // Reward finding a path.
+            fitness -= solution.getPath().size() * 2;   // Reward shorter paths
         }
-        fitness -= solution.getPathCost();      // Reward lower cost paths
-        fitness -= solution.getDistance();      // Reward closer to station (Smaller the distance smaller the subtraction)
-        fitness -= solution.getPath().size();   // Reward shorter paths.
+
         solution.setFitness(fitness);
         train.setBestResult(solution);
         return solution;
@@ -32,10 +35,21 @@ class Fitness {
     public static void setFitness(PathResult solution, Train train) {
         Tile current = train.getStartTile();
         Tile[][] map = copyMap(Game.getMap());
+        List<String> updatedPath = new ArrayList<>();
+
         for (String direction : solution.getPath()) {
             Tile next = GeneticAlgorithm.getNextTile(map, current, direction);
             if (next == null) {
-                return;
+                return; // Exit if the next tile is null
+            }
+            solution.setDistance(calculateDistance(next, train.getEndTile()));
+            updatedPath.add(direction);
+
+            if (next.equals(train.getEndTile())) {
+                // Update the path to include only directions leading to the end tile
+                solution.setPath(new ArrayList<>(updatedPath));
+                solution.setPathExists(true);
+                return; // Exit after updating the path
             }
 
             if (!isValidConnection(current, next)) {
@@ -43,8 +57,11 @@ class Fitness {
                     solution.setPathCost(solution.getPathCost() + calculateUpdateCost(current, next));
                 }
             }
+
             current = next;
         }
+
+        // Update the distance to the end tile
         solution.setDistance(calculateDistance(current, train.getEndTile()));
         if (current.equals(train.getEndTile())) {
             solution.setPathExists(true);
@@ -69,7 +86,6 @@ class Fitness {
 
         // Base case: reached the end tile
         if (current.equals(end)) {
-            //path.add(determineMove(current, end));
             solution.setPath(path);
             return new PathResult(true, cost, solution.getPath(), 0);
         }
@@ -80,6 +96,7 @@ class Fitness {
         }
 
         visited.add(current); // Mark the current tile as visited
+        solution.setVisited(new HashSet<>(visited));
 
         int x = current.getX();
         int y = current.getY();
@@ -161,7 +178,7 @@ class Fitness {
         return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
     }
 
-    private static boolean isValidTile(Tile tile) {
+    static boolean isValidTile(Tile tile) {
         return tile.getX() >= 0 && tile.getX() < Game.size && tile.getY() >= 0 && tile.getY() < Game.size;
     }
 

@@ -1,6 +1,8 @@
 package org.example;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PathResult {
     private int id;
@@ -9,6 +11,7 @@ public class PathResult {
     private List<String> path;
     private int distance;
     private int fitness;
+    private Set<Tile> visited;
 
     PathResult(boolean pathExists, int pathCost, List<String> path, int distance) {
         this.pathExists = pathExists;
@@ -16,6 +19,7 @@ public class PathResult {
         this.path = path;
         this.distance = distance;
         this.fitness = 0;
+        this.visited = new HashSet<>();
     }
     PathResult(PathResult pathResult) {
         this.pathExists = pathResult.pathExists;
@@ -24,6 +28,7 @@ public class PathResult {
         this.distance = pathResult.distance;
         this.fitness = pathResult.fitness;
         this.id = pathResult.id;
+        this.visited = new HashSet<>(pathResult.visited);
     }
 
     public int getId() {return id;}
@@ -52,4 +57,6 @@ public class PathResult {
     }
     public int getFitness() { return fitness; }
     public void setFitness(int fitness) { this.fitness = fitness; }
+    public Set<Tile> getVisited() { return visited; }
+    public void setVisited(Set<Tile> visited) { this.visited = visited; }
 }

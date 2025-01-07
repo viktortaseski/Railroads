@@ -3,8 +3,7 @@ package org.example;
 import java.util.*;
 import java.util.concurrent.*;
 
-import static org.example.Fitness.isValidConnection;
-import static org.example.Fitness.setFitness;
+import static org.example.Fitness.*;
 
 public class GeneticAlgorithm {
 
@@ -19,8 +18,8 @@ public class GeneticAlgorithm {
         for (int i = 0; i < iterations; i++) {
             List<PathResult> nextGeneration = new ArrayList<>();
             for (PathResult pathResult : population) {
+                Fitness.setFitness(pathResult, train);
                 Fitness.evaluate(pathResult, train);
-                setFitness(pathResult, train);
                 System.out.println("Generation " + i + ": Train[" + train.getId() + "] Fitness: " + pathResult.getFitness() + " Path[" + pathResult.getId() + "] " + pathResult.getPath() );
             }
             System.out.println();
@@ -38,10 +37,10 @@ public class GeneticAlgorithm {
 
                 for (PathResult child : offspring) {
                     if (!child.isPathExists()) {
-                        mutate(child.getPath(), random);
+                        mutate(child, random);
                     }
-                    Fitness.evaluate(child, train);
                     Fitness.setFitness(child, train);
+                    Fitness.evaluate(child, train);
                     nextGeneration.add(child);
                 }
 
@@ -115,12 +114,18 @@ public class GeneticAlgorithm {
         );
     }
 
-    private static void mutate(List<String> path, Random random) {
-        if (path == null || path.isEmpty()) {
+    private static void mutate(PathResult solution, Random random) {
+        List<String> path = solution.getPath();
+        Set<Tile> visited = solution.getVisited();
+        if (path == null) {
             return;
         }
 
         int mutationType = random.nextInt(2);
+
+        if (path.isEmpty()){
+            path.add(0, getRandomDirection(random));   // If path is empty generate a move.
+        }
 
         switch (mutationType) {
             case 0: // Add a valid random move

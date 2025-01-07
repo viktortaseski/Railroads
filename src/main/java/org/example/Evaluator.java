@@ -23,7 +23,7 @@ public class Evaluator {
 
         long startTime = System.currentTimeMillis();
         for (Train train: Game.TRAINS){
-            result = GeneticAlgorithm.run(generations, 10, train);
+            result = GeneticAlgorithm.run(generations, 4, train);
             totalPathCost = result.getPathCost();
             train.setBestResult(result);
             GeneticAlgorithm.applyBestPathToMap(Game.getMap(), result, train);

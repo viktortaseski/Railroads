@@ -42,6 +42,6 @@ public class Main {
         pool.submit(new InputHandler());
         pool.submit(new GameLoop(game));
         pool.submit(new Gui());
-
+        System.out.println("hello world");
     }
 }

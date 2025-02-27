@@ -2,8 +2,6 @@ package org.example;
 
 import java.util.*;
 
-import static org.example.HelperFunctions.*;
-
 public class GeneticAlgorithm {
 
 
@@ -40,7 +38,6 @@ public class GeneticAlgorithm {
             if (!isValidConnection(currentTest, neighbour)){
                 updateTileConnection(currentTest, neighbour);
                 System.out.println("After update Neighbor["+neighbour.getX() + "," + neighbour.getY() + "]: " + neighbour.getType() + " " + neighbour.getRotation() + " connection is " + isValidConnection(currentTest, neighbour) );
-
             }
         }
          */

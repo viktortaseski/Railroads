@@ -31,7 +31,7 @@ public class MapSolution extends HelperFunctions {
             train.setResult(result);
 
             if (!hasReachedEnd) {
-                fitness += 50;
+                fitness += 100;                          // Penalty for not reaching the end.
             }
 
             fitness += distance;                        // Penalty for solutions that are not close

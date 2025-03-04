@@ -141,13 +141,27 @@ class HelperFunctions {
         int currentRotation = current.getRotationIndex();
         int neighborRotation = neighbor.getRotationIndex();
 
-        //
+        // CASE: STATION next to any other tile just check if the other tile connects to the station position.
         if (current.getType() == TileType.STATION && neighbor.getType() != TileType.TRAIN && neighbor.getType() != TileType.STATION) {
             return (connections[neighborType][neighborRotation] & (1 << oppDir)) != 0;  // Just check if the current tile is connecting to the station.
         }
-
+        // CASE: Neighbor is a STATION then just check if the current connects to the station position.
         if (neighbor.getType() == TileType.STATION && current.getType() != TileType.TRAIN && current.getType() != TileType.STATION) {
             return (connections[currentType][currentRotation] & (1 << dir)) != 0;
+        }
+        // CASE: TRAIN next to STATION
+        if (current.getType() == TileType.TRAIN && neighbor.getType() == TileType.STATION) {
+            return true;
+        }
+        //CASE: STATION next to TRAIN return false since by MY game logic you cannot cross a TRAIN tile.
+        if (current.getType() == TileType.STATION && neighbor.getType() == TileType.TRAIN){
+            return false;
+        }
+        if (current.getType() == TileType.TRAIN && neighbor.getType() == TileType.TRAIN) {
+            return false;
+        }
+        if (current.getType() == TileType.STATION && neighbor.getType() == TileType.STATION) {
+            return true;
         }
 
         if (currentType < 0 || currentType >= connections.length ||
@@ -164,8 +178,7 @@ class HelperFunctions {
         return currentToNeighbor && neighborToCurrent;
     }
 
-    public static Tile[][] createRandomMap(Train train, int size) {
-        Random rand = new Random();
+    public static Tile[][] createRandomMap(Train train, int size, Random rand) {
         Tile[][] map = new Tile[size][size];
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {

@@ -88,6 +88,12 @@ public class Game {
         Game.board = board;
     }
 
+    public static int getBoardFitness() {
+        MapSolution map = new MapSolution(board, 0, false);
+        map.evaluateFitness();
+        return map.getFitness();
+    }
+
     public static int getNumTrains() {
         return numTrains;
     }

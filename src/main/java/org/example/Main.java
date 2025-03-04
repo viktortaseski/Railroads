@@ -16,7 +16,6 @@ public class Main {
         System.out.println("4. If a train doesn't reach the station a map is given +20 penalty.");
         System.out.println("5. Straight roads are considered of cost 0.");
         System.out.println("\t=============================\n");
-        System.out.println("NOTE: Mutate is commented out.\n");
         Scanner scanner = new Scanner(System.in);
         int mode;
         int mapSize;

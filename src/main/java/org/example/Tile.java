@@ -51,6 +51,9 @@ public class Tile {
     public TileType getType() {
         return type;
     }
+    public Rotation getRotation() {
+        return rotation;
+    }
 
     public void setType(TileType type) {
         this.type = type;

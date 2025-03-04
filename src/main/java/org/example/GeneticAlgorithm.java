@@ -24,8 +24,11 @@ public class GeneticAlgorithm {
         int populationSize = 10;
         List<Train> trains = game.getTrains();
 
-        for (Train train : trains) {
+        for (Train train : Game.TRAINS) {
             run(iterations, populationSize, train);
+        }
+
+        for (Train train: Game.TRAINS) {
             System.out.println("========================================");
             System.out.println("Path exists: " + train.getResult().isPathExists());
             System.out.print("Path for Train[" + train.getId() + "]: ");
@@ -34,12 +37,11 @@ public class GeneticAlgorithm {
             }
             System.out.println("\n========================================");
         }
-
         System.out.println("Best map cost is: " + Game.getBoardFitness());
     }
 
     public static void run(int iterations, int populationSize, Train train) {
-        Random random = new Random(1234);
+        Random random = new Random(12345);
         List<MapSolution> population = initPopulation(train, populationSize);
 
         for (int i = 0; i < iterations; i++) {
@@ -50,12 +52,12 @@ public class GeneticAlgorithm {
                 solution.evaluateFitness();
                 System.out.println("Solution: " + solution.getFitness());
             }
-            System.out.println("========================");
+
             // Sort population by fitness (lower cost is better)
             population.sort(Comparator.comparingInt(MapSolution::getFitness));
+
             // Elitism: Retain the top-performing solutions
-            int eliteCount = Math.max(1, populationSize / 2);
-            nextGeneration.addAll(population.subList(0, eliteCount));
+            nextGeneration.addAll(population.subList(0, 2));
 
             // Generate offspring
             while (nextGeneration.size() < populationSize) {
@@ -77,23 +79,11 @@ public class GeneticAlgorithm {
             }
 
             population = nextGeneration;
+        }
 
-            // Log generation details using the best solution (first element)
-            for (MapSolution solution : population) {
-                solution.evaluateFitness();
-            }
-            population.sort(Comparator.comparingInt(MapSolution::getFitness));
-//
-//            System.out.println("========================");
-//            System.out.println("Generation [" + i + "] ");
-//            System.out.println("Best Generation Solution Cost: " + population.get(0).getFitness());
-//            System.out.println("Path exists: " + train.getResult().isPathExists());
-//            System.out.println("========================");
-        }
-        for (MapSolution solution : population) {
-            solution.evaluateFitness();
-        }
-        Game.setBoard(population.getFirst().getMapLayout());
+        // Set the best solution to the game board
+        population.sort(Comparator.comparingInt(MapSolution::getFitness));
+        Game.setBoard(population.get(0).getMapLayout());
     }
 
     public static List<MapSolution> initPopulation(Train train, int populationSize) {
@@ -108,26 +98,8 @@ public class GeneticAlgorithm {
     }
 
     public static MapSolution selectParent(List<MapSolution> population, Random random) {
-        // Improved Roulette Wheel Selection for minimization:
-        // Lower fitness (cost) should have a higher chance of selection.
-        int worstFitness = population.stream().mapToInt(MapSolution::getFitness).max().orElse(1);
-        List<Integer> weights = new ArrayList<>();
-        int totalWeight = 0;
-        for (MapSolution sol : population) {
-            // Inverse weight: better (lower) fitness gives higher weight.
-            int weight = worstFitness - sol.getFitness() + 1; // +1 ensures a non-zero weight
-            weights.add(weight);
-            totalWeight += weight;
-        }
-        int randomValue = random.nextInt(totalWeight);
-        int runningSum = 0;
-        for (int i = 0; i < population.size(); i++) {
-            runningSum += weights.get(i);
-            if (runningSum > randomValue) {
-                return population.get(i);
-            }
-        }
-        return population.get(population.size() - 1); // Fallback
+        // Select a parent from the top 50% of the population
+        return population.get(random.nextInt(population.size() / 2));
     }
 
     public static List<MapSolution> crossover(MapSolution parent1, MapSolution parent2, Random random) {
@@ -165,7 +137,12 @@ public class GeneticAlgorithm {
     private static Tile[][] deepCopy(Tile[][] original) {
         Tile[][] copy = new Tile[original.length][];
         for (int i = 0; i < original.length; i++) {
-            copy[i] = original[i].clone();
+            copy[i] = new Tile[original[i].length];
+            for (int j = 0; j < original[i].length; j++) {
+                // Create a new Tile instance with the same properties
+                Tile originalTile = original[i][j];
+                copy[i][j] = new Tile(originalTile.getX(), originalTile.getY(), originalTile.getRotation(), originalTile.getType());
+            }
         }
         return copy;
     }
@@ -175,12 +152,14 @@ public class GeneticAlgorithm {
         Tile[][] map = deepCopy(solution.getMapLayout());
         int i = random.nextInt(map.length);
         int j = random.nextInt(map[0].length);
+
         // If the tile is not a TRAIN or STATION, change it to one of the low-cost road types.
         if (map[i][j].getType() != TileType.STATION && map[i][j].getType() != TileType.TRAIN) {
             // Assuming the last two enum values represent STATION and TRAIN, select from the others.
             TileType[] possibleTypes = Arrays.copyOf(TileType.values(), TileType.values().length - 2);
             map[i][j].setType(possibleTypes[random.nextInt(possibleTypes.length)]);
         }
+
         solution.setMapLayout(map);
     }
 }

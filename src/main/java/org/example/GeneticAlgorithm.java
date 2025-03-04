@@ -12,6 +12,7 @@ public class GeneticAlgorithm {
             runSequential(game);
         } else if (mode == 2) {
             System.out.println("PARALLEL MODE!!!");
+            ParallelGeneticAlgorithm.runParallel(game);
             // Add parallel mode implementation here if needed.
         } else if (mode == 3) {
             System.out.println("DISTRIBUTED MODE!!");

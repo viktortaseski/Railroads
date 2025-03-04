@@ -29,9 +29,9 @@ public class Main {
             mapSize = scanner.nextInt();
         }while (mapSize < 3 || mapSize > 50);
         do {
-            System.out.println("Enter trains: 'max: " + mapSize/2 + ", min: 1' ");
+            System.out.println("Enter trains: 'max: " + mapSize*mapSize/2 + ", min: 1' ");
             numberOfTrains  = scanner.nextInt();
-        }while(numberOfTrains < 1 || numberOfTrains > mapSize / 2);
+        }while(numberOfTrains < 1 || numberOfTrains > mapSize*mapSize / 2);
         System.out.println("==============================");
         System.out.println("Mode: " + mode + "\nMap size: " + mapSize + "\ntrains: " + numberOfTrains);
         System.out.println("==============================");

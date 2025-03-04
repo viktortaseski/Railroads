@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 public class GeneticAlgorithm {
 
@@ -9,11 +10,16 @@ public class GeneticAlgorithm {
 
         if (mode == 1) {
             System.out.println("Running Genetic Algorithm in Sequential Mode :) ");
+            long startTime = System.currentTimeMillis();
             runSequential(game);
+            long endTime = System.currentTimeMillis();
+            System.out.println("Time: " + (endTime - startTime) + "ms");
         } else if (mode == 2) {
             System.out.println("PARALLEL MODE!!!");
-            ParallelGeneticAlgorithm.runParallel(game);
-            // Add parallel mode implementation here if needed.
+            long startTime = System.currentTimeMillis();
+            runParallel(game);
+            long endTime = System.currentTimeMillis();
+            System.out.println("Time: " + (endTime - startTime) + "ms");
         } else if (mode == 3) {
             System.out.println("DISTRIBUTED MODE!!");
             // Add distributed mode implementation here if needed.
@@ -29,7 +35,7 @@ public class GeneticAlgorithm {
             run(iterations, populationSize, train);
         }
 
-        for (Train train: Game.TRAINS) {
+        for (Train train : Game.TRAINS) {
             System.out.println("========================================");
             System.out.println("Path exists: " + train.getResult().isPathExists());
             System.out.print("Path for Train[" + train.getId() + "]: ");
@@ -39,6 +45,107 @@ public class GeneticAlgorithm {
             System.out.println("\n========================================");
         }
         System.out.println("Best map cost is: " + Game.getBoardFitness());
+    }
+
+    public static void runParallel(Game game) {
+        int iterations = 50;
+        int populationSize = 10;
+        List<Train> trains = game.getTrains();
+
+        for (Train train : trains) {
+            runParallel(iterations, populationSize, train);
+            System.out.println("========================================");
+            System.out.println("Path exists: " + train.getResult().isPathExists());
+            System.out.print("Path for Train[" + train.getId() + "]: ");
+            for (Tile path : train.getResult().getPath()) {
+                System.out.print("(" + path.getX() + "," + path.getY() + ") ");
+            }
+            System.out.println("\n========================================");
+        }
+
+        System.out.println("Best map cost is: " + Game.getBoardFitness());
+    }
+
+    public static void runParallel(int iterations, int populationSize, Train train) {
+        Random random = new Random(12345);
+        List<MapSolution> population = initPopulation(train, populationSize);
+
+        // Create a thread pool with the number of available processors
+        int numThreads = Runtime.getRuntime().availableProcessors();
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+
+        for (int i = 0; i < iterations; i++) {
+            List<MapSolution> nextGeneration = Collections.synchronizedList(new ArrayList<>());
+
+            // Evaluate fitness of the current population in parallel
+            List<Future<Void>> futures = new ArrayList<>();
+            for (MapSolution solution : population) {
+                futures.add(executor.submit(() -> {
+                    solution.evaluateFitness();
+                    return null;
+                }));
+            }
+
+            // Wait for all fitness evaluations to complete
+            for (Future<Void> future : futures) {
+                try {
+                    future.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // Sort population by fitness (lower cost is better)
+            population.sort(Comparator.comparingInt(MapSolution::getFitness));
+
+            // Elitism: Retain the top-performing solutions
+            nextGeneration.addAll(population.subList(0, 2));
+
+            // Generate offspring in parallel
+            List<Future<Void>> offspringFutures = new ArrayList<>();
+            while (nextGeneration.size() < populationSize) {
+                MapSolution parent1 = selectParent(population, random);
+                MapSolution parent2 = selectParent(population, random);
+
+                // Perform diagonal crossover
+                List<MapSolution> offspring = crossover(parent1, parent2, random);
+
+                // Mutate and evaluate offspring in parallel
+                for (MapSolution child : offspring) {
+                    offspringFutures.add(executor.submit(() -> {
+                        mutate(child, random);
+                        child.evaluateFitness();
+                        synchronized (nextGeneration) {
+                            nextGeneration.add(child);
+                        }
+                        return null;
+                    }));
+                }
+            }
+
+            // Wait for all offspring tasks to complete
+            for (Future<Void> future : offspringFutures) {
+                try {
+                    future.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            population = nextGeneration;
+        }
+
+        // Shutdown the executor
+        executor.shutdown();
+        try {
+            executor.awaitTermination(1, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Set the best solution to the game board
+        population.sort(Comparator.comparingInt(MapSolution::getFitness));
+        Game.setBoard(population.get(0).getMapLayout());
     }
 
     public static void run(int iterations, int populationSize, Train train) {

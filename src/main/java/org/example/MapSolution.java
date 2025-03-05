@@ -35,6 +35,7 @@ public class MapSolution extends HelperFunctions {
             }
 
             fitness += distance;                        // Penalty for solutions that are not close
+            //fitness += (result.getPath().size()-2) * 2;   // Penalty for longer paths
             fitness -= cost;                            // Reward exploration
 
         }

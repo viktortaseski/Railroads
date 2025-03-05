@@ -35,34 +35,14 @@ public class PathResult {
         this.closestTileToEnd = pathResult.closestTileToEnd;
     }
 
-    public int getId() {return id;}
-    public void setId(int id) {this.id = id;}
+
     public boolean isPathExists() { return pathExists; }
-    public int getPathCost() {
-        return pathCost;
-    }
+    public int getPathCost() { return pathCost; }
     public List<Tile> getPath() {
         return path;
-    }
-    public void setPathExists(boolean pathExists) {
-        this.pathExists = pathExists;
-    }
-    public void setPathCost(int pathCost) {
-        this.pathCost = pathCost;
-    }
-    public void setPath(List<Tile> path) {
-        this.path = path;
     }
     public int getDistance() {
         return distance;
     }
-    public void setDistance(int distance) {
-        this.distance = distance;
-    }
-    public int getFitness() { return fitness; }
-    public void setFitness(int fitness) { this.fitness = fitness; }
-    public Set<Tile> getVisited() { return visited; }
-    public void setVisited(Set<Tile> visited) { this.visited = visited; }
-    public Tile getClosestTileToEnd() { return closestTileToEnd; }
-    public void setClosestTileToEnd(Tile closestTileToEnd) {}
+
 }

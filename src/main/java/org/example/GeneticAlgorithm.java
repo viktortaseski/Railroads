@@ -7,17 +7,18 @@ public class GeneticAlgorithm {
 
     public static void start(Game game) {
         int mode = game.getMode();
+        Random random = new Random(12345);
 
         if (mode == 1) {
             System.out.println("Running Genetic Algorithm in Sequential Mode :) ");
             long startTime = System.currentTimeMillis();
-            runSequential(game);
+            runSequential(game, random);
             long endTime = System.currentTimeMillis();
             System.out.println("Time: " + (endTime - startTime) + "ms");
         } else if (mode == 2) {
             System.out.println("PARALLEL MODE!!!");
             long startTime = System.currentTimeMillis();
-            runParallel(game);
+            runParallel(game, random);
             long endTime = System.currentTimeMillis();
             System.out.println("Time: " + (endTime - startTime) + "ms");
         } else if (mode == 3) {
@@ -26,13 +27,13 @@ public class GeneticAlgorithm {
         }
     }
 
-    public static void runSequential(Game game) {
+    public static void runSequential(Game game, Random random) {
         int iterations = 50;
         int populationSize = 10;
         List<Train> trains = game.getTrains();
 
         for (Train train : Game.TRAINS) {
-            run(iterations, populationSize, train);
+            run(iterations, populationSize, train, random);
         }
 
         for (Train train : Game.TRAINS) {
@@ -47,13 +48,13 @@ public class GeneticAlgorithm {
         System.out.println("Best map cost is: " + Game.getBoardFitness());
     }
 
-    public static void runParallel(Game game) {
-        int iterations = 50;
+    public static void runParallel(Game game, Random random) {
+        int iterations = 10000;
         int populationSize = 10;
         List<Train> trains = game.getTrains();
 
         for (Train train : trains) {
-            runParallel(iterations, populationSize, train);
+            runParallel(iterations, populationSize, train, random);
             System.out.println("========================================");
             System.out.println("Path exists: " + train.getResult().isPathExists());
             System.out.print("Path for Train[" + train.getId() + "]: ");
@@ -66,8 +67,7 @@ public class GeneticAlgorithm {
         System.out.println("Best map cost is: " + Game.getBoardFitness());
     }
 
-    public static void runParallel(int iterations, int populationSize, Train train) {
-        Random random = new Random(12345);
+    public static void runParallel(int iterations, int populationSize, Train train, Random random) {
         List<MapSolution> population = initPopulation(train, populationSize);
 
         // Create a thread pool with the number of available processors
@@ -148,8 +148,7 @@ public class GeneticAlgorithm {
         Game.setBoard(population.get(0).getMapLayout());
     }
 
-    public static void run(int iterations, int populationSize, Train train) {
-        Random random = new Random(12345);
+    public static void run(int iterations, int populationSize, Train train, Random random) {
         List<MapSolution> population = initPopulation(train, populationSize);
 
         for (int i = 0; i < iterations; i++) {
@@ -158,7 +157,6 @@ public class GeneticAlgorithm {
             // Evaluate fitness of the current population
             for (MapSolution solution : population) {
                 solution.evaluateFitness();
-                System.out.println("Solution: " + solution.getFitness());
             }
 
             // Sort population by fitness (lower cost is better)

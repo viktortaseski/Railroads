@@ -7,7 +7,7 @@ public class Game {
     private static int mode;
     private static Tile[][] board;
     private static int numTrains;
-    static List<Train> TRAINS;
+    public static List<Train> TRAINS;
     private final long seed; // Seed for consistent randomness
 
     public Game(int mode, int size, int numTrains, long seed) {
@@ -24,37 +24,38 @@ public class Game {
         TRAINS = new ArrayList<>();
         Random rand = new Random(seed); // Use the seed for consistent results
 
+        // Initialize board with random roads.
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                board[i][j] = Tile.randomRoad(i, j, rand); // Assuming Tile.randomRoad() is deterministic
+                board[i][j] = Tile.randomRoad(i, j, rand);
             }
         }
 
         Set<String> usedCoordinates = new HashSet<>(); // To track used coordinates
         for (int i = 0; i < numTrains; i++) {
-            // Generate unique start coordinates for the train
+            // Generate unique start coordinates for the train.
             int x = rand.nextInt(size);
             int y = rand.nextInt(size);
-            while (usedCoordinates.contains(x + "," + y)) { // Ensure the coordinate is unique
+            while (usedCoordinates.contains(x + "," + y)) {
                 x = rand.nextInt(size);
                 y = rand.nextInt(size);
             }
-            usedCoordinates.add(x + "," + y); // Add the coordinate to the used set
+            usedCoordinates.add(x + "," + y);
             Tile start = new Tile(x, y, Rotation.ZERO, TileType.TRAIN);
             board[x][y] = start;
 
-            // Generate unique end coordinates for the station
+            // Generate unique end coordinates for the station.
             x = rand.nextInt(size);
             y = rand.nextInt(size);
-            while (usedCoordinates.contains(x + "," + y)) { // Ensure the coordinate is unique
+            while (usedCoordinates.contains(x + "," + y)) {
                 x = rand.nextInt(size);
                 y = rand.nextInt(size);
             }
-            usedCoordinates.add(x + "," + y); // Add the coordinate to the used set
+            usedCoordinates.add(x + "," + y);
             Tile end = new Tile(x, y, Rotation.ZERO, TileType.STATION);
             board[x][y] = end;
 
-            // Create a train with unique start and end positions
+            // Create a train with unique start and end positions.
             Train train = new Train(start, end);
             train.setResult(new PathResult(false, 0, new ArrayList<>(), 0, train.getStartTile()));
             TRAINS.add(train);
@@ -63,8 +64,8 @@ public class Game {
         int index = 0;
         for (Train train : TRAINS) {
             index++;
-            train.setId(index);
-            System.out.println("Train[" + index + "] (" + train.getStartTile().getX() + ", " + train.getStartTile().getY() + ") (" + train.getEndTile().getX() + ", " + train.getEndTile().getY() + ")");
+            System.out.println("Train[" + index + "] (" + train.getStartTile().getX() + ", " + train.getStartTile().getY() +
+                    ") (" + train.getEndTile().getX() + ", " + train.getEndTile().getY() + ")");
         }
     }
 

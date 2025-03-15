@@ -7,23 +7,29 @@ public class GeneticAlgorithm {
 
     public static void start(Game game) {
         Random random = new Random(12345);
+        long startTime = 0;
+        long endTime = 0;
 
         if (Game.getMode() == 1) {
             System.out.println("Running Sequential Genetic Algorithm");
-        }
-        if (Game.getMode() == 2) {
+            startTime = System.currentTimeMillis();
+            for (Train train : game.getTrains()) {
+                runSequential(50, 10, train, random);
+            }
+            endTime = System.currentTimeMillis();
+        } else if (Game.getMode() == 2) {
             System.out.println("Running Genetic Algorithm with parallel fitness evaluation");
+            startTime = System.currentTimeMillis();
+            for (Train train : game.getTrains()) {
+                runParallel(50, 10, train, random);
+            }
+            endTime = System.currentTimeMillis();
+        } else if (Game.getMode() == 3) {
+            System.out.println("Running Distributed Genetic Algorithm");
         }
-
-        long startTime = System.currentTimeMillis();
-        // For each train, run the GA (all genetic operations except fitness evaluation are sequential).
-        for (Train train : Game.TRAINS) {
-            run(50, 10, train, random);
-        }
-        long endTime = System.currentTimeMillis();
 
         // Print results for each train.
-        for (Train train : Game.TRAINS) {
+        for (Train train : Game.getTrains()) {
             System.out.println("========================================");
             System.out.println("Path exists: " + train.getResult().isPathExists());
             System.out.print("Path for Train[" + train.getId() + "]: ");
@@ -36,20 +42,16 @@ public class GeneticAlgorithm {
         System.out.println("Time: " + (endTime - startTime) + "ms");
     }
 
-    public static void run(int iterations, int populationSize, Train train, Random random) {
+
+    public static void runSequential(int iterations, int populationSize, Train train, Random random) {
         List<MapSolution> population = initPopulation(train, populationSize);
 
         // Create a fixed thread pool with as many threads as solutions per generation.
-        ExecutorService executor = Executors.newFixedThreadPool(populationSize);
 
         for (int i = 0; i < iterations; i++) {
-            // 1. Evaluate fitness for current generation in parallel.
-            if (Game.getMode() == 1) {
-                for (MapSolution solution : population) {
-                    solution.evaluateFitness();
-                }
-            } else if (Game.getMode() == 2) {
-                parallelFitnessEvaluation(population, executor);
+            // 1. Evaluate fitness for current generation.
+            for (MapSolution solution : population) {
+                solution.evaluateFitness();
             }
 
             // 2. Sort population by fitness (lower is better).
@@ -57,7 +59,7 @@ public class GeneticAlgorithm {
 
             // 3. Elitism: retain the top 2 solutions.
             List<MapSolution> nextGeneration = new ArrayList<>();
-            nextGeneration.addAll(population.subList(0, 2));
+            nextGeneration.addAll(population.subList(0, Math.min(2, population.size())));
 
             // 4. Generate offspring sequentially to ensure deterministic random behavior.
             List<MapSolution> offspringList = new ArrayList<>();
@@ -76,10 +78,51 @@ public class GeneticAlgorithm {
                 }
             }
 
-            // 5. Evaluate offspring fitness in parallel.
-            // parallelFitnessEvaluation(offspringList, executor);  // I already evaluate when the loop starts
+            // 5. Form the next generation.
+            nextGeneration.addAll(offspringList);
+            population = nextGeneration;
+        }
 
-            // 6. Form the next generation.
+        // Set the best solution on the game board.
+        population.sort(Comparator.comparingInt(MapSolution::getFitness));
+        Game.setBoard(population.get(0).getMapLayout());
+    }
+
+    public static void runParallel(int iterations, int populationSize, Train train, Random random) {
+        List<MapSolution> population = initPopulation(train, populationSize);
+
+        // Create a fixed thread pool with as many threads as solutions per generation.
+        ExecutorService executor = Executors.newFixedThreadPool(populationSize);
+
+        for (int i = 0; i < iterations; i++) {
+            // 1. Evaluate fitness for current generation.
+            parallelFitnessEvaluation(population, executor);
+
+            // 2. Sort population by fitness (lower is better).
+            population.sort(Comparator.comparingInt(MapSolution::getFitness));
+
+            // 3. Elitism: retain the top 2 solutions.
+            List<MapSolution> nextGeneration = new ArrayList<>();
+            nextGeneration.addAll(population.subList(0, Math.min(2, population.size())));
+
+            // 4. Generate offspring sequentially to ensure deterministic random behavior.
+            List<MapSolution> offspringList = new ArrayList<>();
+            while (offspringList.size() < (populationSize - 2)) {
+                MapSolution parent1 = selectParent(population, random);
+                MapSolution parent2 = selectParent(population, random);
+
+                // Diagonal crossover (sequential).
+                List<MapSolution> offspring = crossover(parent1, parent2, random);
+                for (MapSolution child : offspring) {
+                    if (offspringList.size() < (populationSize - 2)) {
+                        // Mutation is also sequential.
+                        mutate(child, random);
+                        offspringList.add(child);
+                    }
+                }
+            }
+
+            // 5. Form the next generation.
             nextGeneration.addAll(offspringList);
             population = nextGeneration;
         }
@@ -119,7 +162,7 @@ public class GeneticAlgorithm {
         Random initRandom = new Random(1234);
         for (int i = 0; i < populationSize; i++) {
             MapSolution solution = new MapSolution(
-                    HelperFunctions.createRandomMap(train, Game.size, initRandom),
+                    HelperFunctions.createRandomMap(train, Game.getSize(), initRandom),
                     0, false
             );
             solution.setMapCost(solution.calculateMapCost());

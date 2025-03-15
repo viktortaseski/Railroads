@@ -1,0 +1,16 @@
++--------------------+----------+----------+---------------+
+|     Test Type      |  Trains  |   Size   |   Time (ms)   |
++--------------------+----------+----------+---------------+
+|  Sequential Test   |    1     |    2     |     13ms      |
+|  Sequential Test   |    2     |    5     |     39ms      |
+|  Sequential Test   |    5     |    10    |     169ms     |
+|  Sequential Test   |    10    |    10    |     328ms     |
+|  Sequential Test   |    20    |    20    |    5369ms     |
+|  Sequential Test   |    50    |    30    |    54959ms    |
+|   Parallel Test    |    1     |    2     |      5ms      |
+|   Parallel Test    |    2     |    5     |      9ms      |
+|   Parallel Test    |    5     |    10    |     53ms      |
+|   Parallel Test    |    10    |    10    |     143ms     |
+|   Parallel Test    |    20    |    20    |    1546ms     |
+|   Parallel Test    |    50    |    30    |    13861ms    |
++--------------------+----------+----------+---------------+

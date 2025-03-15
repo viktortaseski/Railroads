@@ -29,8 +29,9 @@ public class GenerateTests {
             new Pair(10, 5),
             new Pair(10, 10),
             new Pair(20, 20),
-            new Pair(30, 50)
-            // You can add more test configurations as needed.
+            new Pair(30, 50),
+            new Pair(40, 70),
+            new Pair(50, 80),
     };
 
     public static void runTests() throws IOException {
@@ -61,17 +62,6 @@ public class GenerateTests {
         saveResults(output.toString(), "results.txt");
     }
 
-    /**
-     * Runs tests for the given mode and returns the formatted output.
-     *
-     * @param mode  1 for sequential, 2 for parallel
-     * @param label The label for the test type.
-     * @param w1    Column width for Test Type.
-     * @param w2    Column width for Trains.
-     * @param w3    Column width for Size.
-     * @param w4    Column width for Time.
-     * @return A formatted string with the results for all test configurations.
-     */
     private static String runTestsForMode(int mode, String label, int w1, int w2, int w3, int w4) {
         StringBuilder sb = new StringBuilder();
         for (Pair test : tests) {
@@ -93,19 +83,6 @@ public class GenerateTests {
         return sb.toString();
     }
 
-    /**
-     * Formats a row with centered text in each column.
-     *
-     * @param col1 First column text.
-     * @param col2 Second column text.
-     * @param col3 Third column text.
-     * @param col4 Fourth column text.
-     * @param w1   Width for first column.
-     * @param w2   Width for second column.
-     * @param w3   Width for third column.
-     * @param w4   Width for fourth column.
-     * @return A formatted row string.
-     */
     private static String formatRow(String col1, String col2, String col3, String col4,
                                     int w1, int w2, int w3, int w4) {
         return "|" + center(col1, w1)

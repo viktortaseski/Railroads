@@ -7,14 +7,19 @@ public class GeneticAlgorithm {
 
     public static void start(Game game) {
         Random random = new Random(12345);
-        System.out.println("Running Genetic Algorithm with parallel fitness evaluation");
-        long startTime = System.currentTimeMillis();
 
+        if (Game.getMode() == 1) {
+            System.out.println("Running Sequential Genetic Algorithm");
+        }
+        if (Game.getMode() == 2) {
+            System.out.println("Running Genetic Algorithm with parallel fitness evaluation");
+        }
+
+        long startTime = System.currentTimeMillis();
         // For each train, run the GA (all genetic operations except fitness evaluation are sequential).
         for (Train train : Game.TRAINS) {
             run(50, 10, train, random);
         }
-
         long endTime = System.currentTimeMillis();
 
         // Print results for each train.
@@ -39,7 +44,13 @@ public class GeneticAlgorithm {
 
         for (int i = 0; i < iterations; i++) {
             // 1. Evaluate fitness for current generation in parallel.
-            parallelFitnessEvaluation(population, executor);
+            if (Game.getMode() == 1) {
+                for (MapSolution solution : population) {
+                    solution.evaluateFitness();
+                }
+            } else if (Game.getMode() == 2) {
+                parallelFitnessEvaluation(population, executor);
+            }
 
             // 2. Sort population by fitness (lower is better).
             population.sort(Comparator.comparingInt(MapSolution::getFitness));
@@ -66,7 +77,7 @@ public class GeneticAlgorithm {
             }
 
             // 5. Evaluate offspring fitness in parallel.
-            parallelFitnessEvaluation(offspringList, executor);
+            // parallelFitnessEvaluation(offspringList, executor);  // I already evaluate when the loop starts
 
             // 6. Form the next generation.
             nextGeneration.addAll(offspringList);

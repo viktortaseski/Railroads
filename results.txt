@@ -1,20 +1,20 @@
-+--------------------+----------+----------+---------------+
-|     Test Type      |  Trains  |   Size   |   Time (ms)   |
-+--------------------+----------+----------+---------------+
-|  Sequential Test   |    1     |    2     |      9ms      |
-|  Sequential Test   |    2     |    5     |     36ms      |
-|  Sequential Test   |    5     |    10    |     162ms     |
-|  Sequential Test   |    10    |    10    |     343ms     |
-|  Sequential Test   |    20    |    20    |    5600ms     |
-|  Sequential Test   |    50    |    30    |    54864ms    |
-|  Sequential Test   |    70    |    40    |   204808ms    |
-|  Sequential Test   |    80    |    50    |   387344ms    |
-|   Parallel Test    |    1     |    2     |     10ms      |
-|   Parallel Test    |    2     |    5     |      9ms      |
-|   Parallel Test    |    5     |    10    |     48ms      |
-|   Parallel Test    |    10    |    10    |     138ms     |
-|   Parallel Test    |    20    |    20    |    1471ms     |
-|   Parallel Test    |    50    |    30    |    13149ms    |
-|   Parallel Test    |    70    |    40    |    53390ms    |
-|   Parallel Test    |    80    |    50    |   106539ms    |
-+--------------------+----------+----------+---------------+
++--------------------+----------+----------+---------------+---------------+
+|     Test Type      |  Trains  |   Size   |   Time (ms)   |   Map Cost    |
++--------------------+----------+----------+---------------+---------------+
+|  Sequential Test   |    1     |    2     |     11ms      |       8       |
+|  Sequential Test   |    2     |    5     |     41ms      |       2       |
+|  Sequential Test   |    5     |    10    |     181ms     |      -53      |
+|  Sequential Test   |    10    |    10    |     334ms     |      39       |
+|  Sequential Test   |    20    |    20    |    5480ms     |     -904      |
+|  Sequential Test   |    50    |    30    |    54386ms    |     -1492     |
+|  Sequential Test   |    70    |    40    |   204202ms    |     3838      |
+|  Sequential Test   |    80    |    50    |   390036ms    |     2366      |
+|   Parallel Test    |    1     |    2     |      6ms      |       8       |
+|   Parallel Test    |    2     |    5     |      9ms      |       2       |
+|   Parallel Test    |    5     |    10    |     53ms      |      -53      |
+|   Parallel Test    |    10    |    10    |     138ms     |      39       |
+|   Parallel Test    |    20    |    20    |    1518ms     |     -904      |
+|   Parallel Test    |    50    |    30    |    13398ms    |     -1492     |
+|   Parallel Test    |    70    |    40    |    51882ms    |     3838      |
+|   Parallel Test    |    80    |    50    |   179403ms    |     2366      |
++--------------------+----------+----------+---------------+---------------+

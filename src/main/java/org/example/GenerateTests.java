@@ -31,7 +31,7 @@ public class GenerateTests {
             new Pair(20, 20),
             new Pair(30, 50),
             new Pair(40, 70),
-            new Pair(50, 80),
+            new Pair(50,80)
     };
 
     public static void runTests() throws IOException {
@@ -41,20 +41,21 @@ public class GenerateTests {
         int w2 = 10; // Trains
         int w3 = 10; // Size
         int w4 = 15; // Time (ms)
+        int w5 = 15; // Best Map Cost
 
         // Build header and separator lines.
-        String header = formatRow("Test Type", "Trains", "Size", "Time (ms)", w1, w2, w3, w4);
-        String separator = "+" + "-".repeat(w1) + "+" + "-".repeat(w2) + "+" + "-".repeat(w3) + "+" + "-".repeat(w4) + "+\n";
+        String header = formatRow("Test Type", "Trains", "Size", "Time (ms)", "Map Cost", w1, w2, w3, w4, w5);
+        String separator = "+" + "-".repeat(w1) + "+" + "-".repeat(w2) + "+" + "-".repeat(w3) + "+" + "-".repeat(w4) + "+" + "-".repeat(w5) + "+\n";
 
         output.append(separator);
         output.append(header);
         output.append(separator);
 
         // Run all sequential tests.
-        output.append(runTestsForMode(1, "Sequential", w1, w2, w3, w4));
+        output.append(runTestsForMode(1, "Sequential", w1, w2, w3, w4, w5));
 
         // Run all parallel tests.
-        output.append(runTestsForMode(2, "Parallel", w1, w2, w3, w4));
+        output.append(runTestsForMode(2, "Parallel", w1, w2, w3, w4, w5));
 
         output.append(separator);
 
@@ -62,7 +63,19 @@ public class GenerateTests {
         saveResults(output.toString(), "results.txt");
     }
 
-    private static String runTestsForMode(int mode, String label, int w1, int w2, int w3, int w4) {
+    /**
+     *
+     *
+     * @param mode  1 for sequential, 2 for parallel
+     * @param label The label for the test type.
+     * @param w1    Column width for Test Type.
+     * @param w2    Column width for Trains.
+     * @param w3    Column width for Size.
+     * @param w4    Column width for Time.
+     * @param w5    Column width for Best Map Cost.
+     * @return A formatted string with the results for all test configurations.
+     */
+    private static String runTestsForMode(int mode, String label, int w1, int w2, int w3, int w4, int w5) {
         StringBuilder sb = new StringBuilder();
         for (Pair test : tests) {
             // Create a new game with the given mode, size, and number of trains.
@@ -71,24 +84,43 @@ public class GenerateTests {
             long startTime = System.currentTimeMillis();
             GeneticAlgorithm.start(game);
             long elapsedTime = System.currentTimeMillis() - startTime;
+            // Retrieve the best map cost after running the test.
+            int bestMapCost = Game.getBoardFitness();
 
             sb.append(formatRow(
                     label + " Test",
                     String.valueOf(test.getTrains()),
                     String.valueOf(test.getSize()),
                     elapsedTime + "ms",
-                    w1, w2, w3, w4
+                    String.valueOf(bestMapCost),
+                    w1, w2, w3, w4, w5
             ));
         }
         return sb.toString();
     }
 
-    private static String formatRow(String col1, String col2, String col3, String col4,
-                                    int w1, int w2, int w3, int w4) {
+    /**
+     * Formats a row with centered text in each of five columns.
+     *
+     * @param col1 First column text.
+     * @param col2 Second column text.
+     * @param col3 Third column text.
+     * @param col4 Fourth column text.
+     * @param col5 Fifth column text.
+     * @param w1   Width for first column.
+     * @param w2   Width for second column.
+     * @param w3   Width for third column.
+     * @param w4   Width for fourth column.
+     * @param w5   Width for fifth column.
+     * @return A formatted row string.
+     */
+    private static String formatRow(String col1, String col2, String col3, String col4, String col5,
+                                    int w1, int w2, int w3, int w4, int w5) {
         return "|" + center(col1, w1)
                 + "|" + center(col2, w2)
                 + "|" + center(col3, w3)
                 + "|" + center(col4, w4)
+                + "|" + center(col5, w5)
                 + "|\n";
     }
 

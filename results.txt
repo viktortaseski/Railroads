@@ -1,20 +1,20 @@
 +--------------------+----------+----------+---------------+---------------+
 |     Test Type      |  Trains  |   Size   |   Time (ms)   |   Map Cost    |
 +--------------------+----------+----------+---------------+---------------+
-|  Sequential Test   |    1     |    2     |     11ms      |       8       |
-|  Sequential Test   |    2     |    5     |     41ms      |       2       |
-|  Sequential Test   |    5     |    10    |     181ms     |      -53      |
-|  Sequential Test   |    10    |    10    |     334ms     |      39       |
-|  Sequential Test   |    20    |    20    |    5480ms     |     -904      |
-|  Sequential Test   |    50    |    30    |    54386ms    |     -1492     |
-|  Sequential Test   |    70    |    40    |   204202ms    |     3838      |
-|  Sequential Test   |    80    |    50    |   390036ms    |     2366      |
-|   Parallel Test    |    1     |    2     |      6ms      |       8       |
+|  Sequential Test   |    1     |    2     |     13ms      |       8       |
+|  Sequential Test   |    2     |    5     |     38ms      |       2       |
+|  Sequential Test   |    5     |    10    |     163ms     |      -53      |
+|  Sequential Test   |    10    |    10    |     337ms     |      39       |
+|  Sequential Test   |    20    |    20    |    5518ms     |     -904      |
+|  Sequential Test   |    50    |    30    |    55651ms    |     -1492     |
+|  Sequential Test   |    70    |    40    |   208491ms    |     3838      |
+|  Sequential Test   |    80    |    50    |   400626ms    |     2366      |
+|   Parallel Test    |    1     |    2     |      9ms      |       8       |
 |   Parallel Test    |    2     |    5     |      9ms      |       2       |
-|   Parallel Test    |    5     |    10    |     53ms      |      -53      |
-|   Parallel Test    |    10    |    10    |     138ms     |      39       |
-|   Parallel Test    |    20    |    20    |    1518ms     |     -904      |
-|   Parallel Test    |    50    |    30    |    13398ms    |     -1492     |
-|   Parallel Test    |    70    |    40    |    51882ms    |     3838      |
-|   Parallel Test    |    80    |    50    |   179403ms    |     2366      |
+|   Parallel Test    |    5     |    10    |     50ms      |      -53      |
+|   Parallel Test    |    10    |    10    |     140ms     |      39       |
+|   Parallel Test    |    20    |    20    |    1839ms     |     -904      |
+|   Parallel Test    |    50    |    30    |    14025ms    |     -1492     |
+|   Parallel Test    |    70    |    40    |    57109ms    |     3838      |
+|   Parallel Test    |    80    |    50    |   111387ms    |     2366      |
 +--------------------+----------+----------+---------------+---------------+

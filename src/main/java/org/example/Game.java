@@ -66,6 +66,7 @@ public class Game {
             index++;
             System.out.println("Train[" + index + "] (" + train.getStartTile().getX() + ", " + train.getStartTile().getY() +
                     ") (" + train.getEndTile().getX() + ", " + train.getEndTile().getY() + ")");
+            train.setId(index);
         }
     }
 

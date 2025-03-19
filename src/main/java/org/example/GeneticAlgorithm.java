@@ -14,14 +14,14 @@ public class GeneticAlgorithm {
             System.out.println("Running Sequential Genetic Algorithm");
             startTime = System.currentTimeMillis();
             for (Train train : game.getTrains()) {
-                runSequential(50, 10, train, random);
+                runSequential(100, 15, train, random);
             }
             endTime = System.currentTimeMillis();
         } else if (Game.getMode() == 2) {
             System.out.println("Running Genetic Algorithm with parallel fitness evaluation");
             startTime = System.currentTimeMillis();
             for (Train train : game.getTrains()) {
-                runParallel(50, 10, train, random);
+                runParallel(100, 15, train, random);
             }
             endTime = System.currentTimeMillis();
         } else if (Game.getMode() == 3) {
@@ -59,7 +59,7 @@ public class GeneticAlgorithm {
 
             // 3. Elitism: retain the top 2 solutions.
             List<MapSolution> nextGeneration = new ArrayList<>();
-            nextGeneration.addAll(population.subList(0, Math.min(2, population.size())));
+            nextGeneration.addAll(population.subList(0, Math.min(5, population.size())));
 
             // 4. Generate offspring sequentially to ensure deterministic random behavior.
             List<MapSolution> offspringList = new ArrayList<>();
@@ -103,7 +103,7 @@ public class GeneticAlgorithm {
 
             // 3. Elitism: retain the top 2 solutions.
             List<MapSolution> nextGeneration = new ArrayList<>();
-            nextGeneration.addAll(population.subList(0, Math.min(2, population.size())));
+            nextGeneration.addAll(population.subList(0, Math.min(5, population.size())));
 
             // 4. Generate offspring sequentially to ensure deterministic random behavior.
             List<MapSolution> offspringList = new ArrayList<>();

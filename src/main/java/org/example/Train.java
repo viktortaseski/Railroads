@@ -4,7 +4,7 @@ public class Train {
     private final Tile startTile;
     private final Tile endTile;
     private PathResult bestResult;
-    private int id;
+    public int id;
 
     public Train(Tile startTile, Tile endTile) {
         this.startTile = startTile;

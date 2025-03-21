@@ -23,7 +23,11 @@ public class GeneticAlgorithm {
             endTime = System.currentTimeMillis();
         } else if (Game.getMode() == 3) {
             System.out.println("Running Distributed Genetic Algorithm");
+            startTime = System.currentTimeMillis();
+            DistributedSolution.runDistributed(100, 15, random);
+            endTime = System.currentTimeMillis();
         }
+
 
         // Print results for each train.
         for (Train train : Game.getTrains()) {

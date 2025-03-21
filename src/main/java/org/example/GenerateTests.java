@@ -57,6 +57,9 @@ public class GenerateTests {
         // Run all parallel tests.
         output.append(runTestsForMode(2, "Parallel", w1, w2, w3, w4, w5));
 
+        // Run all distributed tests.
+        output.append(runTestsForMode(3, "Distributed", w1, w2, w3, w4, w5));
+
         output.append(separator);
 
         // Save all results to a file.

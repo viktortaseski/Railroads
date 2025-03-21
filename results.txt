@@ -1,20 +1,28 @@
 +--------------------+----------+----------+---------------+---------------+
 |     Test Type      |  Trains  |   Size   |   Time (ms)   |   Map Cost    |
 +--------------------+----------+----------+---------------+---------------+
-|  Sequential Test   |    1     |    2     |     13ms      |       8       |
-|  Sequential Test   |    2     |    5     |     38ms      |       2       |
-|  Sequential Test   |    5     |    10    |     163ms     |      -53      |
-|  Sequential Test   |    10    |    10    |     337ms     |      39       |
-|  Sequential Test   |    20    |    20    |    5518ms     |     -904      |
-|  Sequential Test   |    50    |    30    |    55651ms    |     -1492     |
-|  Sequential Test   |    70    |    40    |   208491ms    |     3838      |
-|  Sequential Test   |    80    |    50    |   400626ms    |     2366      |
-|   Parallel Test    |    1     |    2     |      9ms      |       8       |
-|   Parallel Test    |    2     |    5     |      9ms      |       2       |
-|   Parallel Test    |    5     |    10    |     50ms      |      -53      |
-|   Parallel Test    |    10    |    10    |     140ms     |      39       |
-|   Parallel Test    |    20    |    20    |    1839ms     |     -904      |
-|   Parallel Test    |    50    |    30    |    14025ms    |     -1492     |
-|   Parallel Test    |    70    |    40    |    57109ms    |     3838      |
-|   Parallel Test    |    80    |    50    |   111387ms    |     2366      |
+|  Sequential Test   |    1     |    2     |     15ms      |      10       |
+|  Sequential Test   |    2     |    5     |     48ms      |       9       |
+|  Sequential Test   |    5     |    10    |     122ms     |     -128      |
+|  Sequential Test   |    10    |    10    |     142ms     |      -39      |
+|  Sequential Test   |    20    |    20    |     915ms     |     -1100     |
+|  Sequential Test   |    50    |    30    |    4474ms     |     -3349     |
+|  Sequential Test   |    70    |    40    |    11054ms    |     -1245     |
+|  Sequential Test   |    80    |    50    |    20616ms    |     -4344     |
+|   Parallel Test    |    1     |    2     |      8ms      |      10       |
+|   Parallel Test    |    2     |    5     |      9ms      |       9       |
+|   Parallel Test    |    5     |    10    |     30ms      |     -128      |
+|   Parallel Test    |    10    |    10    |     44ms      |      -39      |
+|   Parallel Test    |    20    |    20    |     242ms     |     -1100     |
+|   Parallel Test    |    50    |    30    |    1003ms     |     -3349     |
+|   Parallel Test    |    70    |    40    |    2331ms     |     -1245     |
+|   Parallel Test    |    80    |    50    |    4573ms     |     -4344     |
+|  Distributed Test  |    1     |    2     |      7ms      |      10       |
+|  Distributed Test  |    2     |    5     |      8ms      |       9       |
+|  Distributed Test  |    5     |    10    |     52ms      |     -128      |
+|  Distributed Test  |    10    |    10    |     81ms      |      -39      |
+|  Distributed Test  |    20    |    20    |     503ms     |     -1100     |
+|  Distributed Test  |    50    |    30    |    2455ms     |     -3349     |
+|  Distributed Test  |    70    |    40    |    5994ms     |     -1245     |
+|  Distributed Test  |    80    |    50    |    11759ms    |     -4344     |
 +--------------------+----------+----------+---------------+---------------+

@@ -6,18 +6,16 @@ import java.util.Random;
 
 
 public class Tile {
-    private int x;
-    private int y;
+    private final int x;
+    private final int y;
     private Rotation rotation;
     private TileType type;
-    private List<Tile> visitedByTrains;
 
     public Tile(int x, int y, Rotation rotation, TileType type) {
         this.x = x;
         this.y = y;
         this.rotation = rotation;
         this.type = type;
-        visitedByTrains = new ArrayList<>();
     }
 
     public static Tile randomRoad(int x, int y, Random random) {

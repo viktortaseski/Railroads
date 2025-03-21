@@ -1,7 +1,5 @@
 package org.example;
 
-import java.util.*;
-
 public class MapSolution extends HelperFunctions {
 
     private Tile[][] mapLayout;
@@ -9,7 +7,7 @@ public class MapSolution extends HelperFunctions {
     private int fitness;
     public PathResult pathResult;
 
-    public MapSolution(Tile[][] mapLayout, int mapCost, boolean pathExists) {
+    public MapSolution(Tile[][] mapLayout, int mapCost) {
         this.mapCost = mapCost;
         this.mapLayout = mapLayout;
         this.fitness = 0;
@@ -32,7 +30,8 @@ public class MapSolution extends HelperFunctions {
             }
 
             fitness += distance;  // Penalty for solutions that are not close.
-            // fitness += (result.getPath().size()-2) * 2;   // Penalty for longer paths (commented out).
+            // I commented this out since I get worse maps when this is used
+            //fitness += result.getPath().size();   // Penalty for longer paths (commented out).
             fitness -= cost;      // Reward exploration.
         }
         fitness += this.calculateMapCost();  // Reward low map costs.
@@ -42,11 +41,11 @@ public class MapSolution extends HelperFunctions {
 
     public int calculateMapCost() {
         int cost = 0;
-        for (int x = 0; x < mapLayout.length; x++) {
-            for (int y = 0; y < mapLayout[x].length; y++) {
-                if (mapLayout[x][y].getType() != TileType.TRAIN &&
-                        mapLayout[x][y].getType() != TileType.STATION) {
-                    cost += mapLayout[x][y].getTypeIndex();
+        for (Tile[] tiles : mapLayout) {
+            for (Tile tile : tiles) {
+                if (tile.getType() != TileType.TRAIN &&
+                        tile.getType() != TileType.STATION) {
+                    cost += tile.getTypeIndex();
                 }
             }
         }

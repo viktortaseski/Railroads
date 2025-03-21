@@ -5,7 +5,7 @@ import java.util.concurrent.*;
 
 public class GeneticAlgorithm {
 
-    public static void start(Game game) {
+    public static void start() {
         Random random = new Random(12345);
         long startTime = 0;
         long endTime = 0;
@@ -13,16 +13,13 @@ public class GeneticAlgorithm {
         if (Game.getMode() == 1) {
             System.out.println("Running Sequential Genetic Algorithm");
             startTime = System.currentTimeMillis();
-            for (Train train : game.getTrains()) {
-                runSequential(100, 15, train, random);
-            }
+                runSequential(100, 15, random);
             endTime = System.currentTimeMillis();
         } else if (Game.getMode() == 2) {
             System.out.println("Running Genetic Algorithm with parallel fitness evaluation");
             startTime = System.currentTimeMillis();
-            for (Train train : game.getTrains()) {
-                runParallel(100, 15, train, random);
-            }
+                runParallel(100, 15, random);
+
             endTime = System.currentTimeMillis();
         } else if (Game.getMode() == 3) {
             System.out.println("Running Distributed Genetic Algorithm");
@@ -43,8 +40,8 @@ public class GeneticAlgorithm {
     }
 
 
-    public static void runSequential(int iterations, int populationSize, Train train, Random random) {
-        List<MapSolution> population = initPopulation(train, populationSize);
+    public static void runSequential(int iterations, int populationSize, Random random) {
+        List<MapSolution> population = initPopulation(populationSize);
 
         // Create a fixed thread pool with as many threads as solutions per generation.
 
@@ -55,41 +52,16 @@ public class GeneticAlgorithm {
             }
 
             // 2. Sort population by fitness (lower is better).
-            population.sort(Comparator.comparingInt(MapSolution::getFitness));
-
-            // 3. Elitism: retain the top 2 solutions.
-            List<MapSolution> nextGeneration = new ArrayList<>();
-            nextGeneration.addAll(population.subList(0, Math.min(5, population.size())));
-
-            // 4. Generate offspring sequentially to ensure deterministic random behavior.
-            List<MapSolution> offspringList = new ArrayList<>();
-            while (offspringList.size() < (populationSize - 2)) {
-                MapSolution parent1 = selectParent(population, random);
-                MapSolution parent2 = selectParent(population, random);
-
-                // Diagonal crossover (sequential).
-                List<MapSolution> offspring = crossover(parent1, parent2, random);
-                for (MapSolution child : offspring) {
-                    if (offspringList.size() < (populationSize - 2)) {
-                        // Mutation is also sequential.
-                        mutate(child, random);
-                        offspringList.add(child);
-                    }
-                }
-            }
-
-            // 5. Form the next generation.
-            nextGeneration.addAll(offspringList);
-            population = nextGeneration;
+            population = creatingNewGeneration(population, populationSize, random);
         }
 
         // Set the best solution on the game board.
         population.sort(Comparator.comparingInt(MapSolution::getFitness));
-        Game.setBoard(population.get(0).getMapLayout());
+        Game.setBoard(population.getFirst().getMapLayout());
     }
 
-    public static void runParallel(int iterations, int populationSize, Train train, Random random) {
-        List<MapSolution> population = initPopulation(train, populationSize);
+    public static void runParallel(int iterations, int populationSize, Random random) {
+        List<MapSolution> population = initPopulation(populationSize);
 
         // Create a fixed thread pool with as many threads as solutions per generation.
         ExecutorService executor = Executors.newFixedThreadPool(populationSize);
@@ -99,32 +71,7 @@ public class GeneticAlgorithm {
             parallelFitnessEvaluation(population, executor);
 
             // 2. Sort population by fitness (lower is better).
-            population.sort(Comparator.comparingInt(MapSolution::getFitness));
-
-            // 3. Elitism: retain the top 2 solutions.
-            List<MapSolution> nextGeneration = new ArrayList<>();
-            nextGeneration.addAll(population.subList(0, Math.min(5, population.size())));
-
-            // 4. Generate offspring sequentially to ensure deterministic random behavior.
-            List<MapSolution> offspringList = new ArrayList<>();
-            while (offspringList.size() < (populationSize - 2)) {
-                MapSolution parent1 = selectParent(population, random);
-                MapSolution parent2 = selectParent(population, random);
-
-                // Diagonal crossover (sequential).
-                List<MapSolution> offspring = crossover(parent1, parent2, random);
-                for (MapSolution child : offspring) {
-                    if (offspringList.size() < (populationSize - 2)) {
-                        // Mutation is also sequential.
-                        mutate(child, random);
-                        offspringList.add(child);
-                    }
-                }
-            }
-
-            // 5. Form the next generation.
-            nextGeneration.addAll(offspringList);
-            population = nextGeneration;
+            population = creatingNewGeneration(population, populationSize, random);
         }
 
         // Shutdown the executor.
@@ -137,7 +84,35 @@ public class GeneticAlgorithm {
 
         // Set the best solution on the game board.
         population.sort(Comparator.comparingInt(MapSolution::getFitness));
-        Game.setBoard(population.get(0).getMapLayout());
+        Game.setBoard(population.getFirst().getMapLayout());
+    }
+    private static List<MapSolution> creatingNewGeneration(List<MapSolution> population, int populationSize, Random random) {
+        population.sort(Comparator.comparingInt(MapSolution::getFitness));
+
+        // 3. Elitism: retain the top 2 solutions.
+        List<MapSolution> nextGeneration = new ArrayList<>(population.subList(0, Math.min(5, population.size())));
+
+        // 4. Generate offspring sequentially to ensure deterministic random behavior.
+        List<MapSolution> offspringList = new ArrayList<>();
+        while (offspringList.size() < (populationSize - 2)) {
+            MapSolution parent1 = selectParent(population, random);
+            MapSolution parent2 = selectParent(population, random);
+
+            // Diagonal crossover (sequential).
+            List<MapSolution> offspring = crossover(parent1, parent2, random);
+            for (MapSolution child : offspring) {
+                if (offspringList.size() < (populationSize - 2)) {
+                    // Mutation is also sequential.
+                    mutate(child, random);
+                    offspringList.add(child);
+                }
+            }
+        }
+
+        // 5. Form the next generation.
+        nextGeneration.addAll(offspringList);
+        population = nextGeneration;
+        return population;
     }
 
     // Helper to evaluate fitness in parallel.
@@ -156,14 +131,14 @@ public class GeneticAlgorithm {
         }
     }
 
-    public static List<MapSolution> initPopulation(Train train, int populationSize) {
+    public static List<MapSolution> initPopulation(int populationSize) {
         List<MapSolution> population = new ArrayList<>();
         // Use a dedicated RNG for population initialization.
         Random initRandom = new Random(1234);
         for (int i = 0; i < populationSize; i++) {
             MapSolution solution = new MapSolution(
-                    HelperFunctions.createRandomMap(train, Game.getSize(), initRandom),
-                    0, false
+                    HelperFunctions.createRandomMap(Game.getSize(), initRandom),
+                    0
             );
             solution.setMapCost(solution.calculateMapCost());
             population.add(solution);
@@ -201,8 +176,8 @@ public class GeneticAlgorithm {
             }
         }
 
-        MapSolution child1 = new MapSolution(childLayout1, 0, false);
-        MapSolution child2 = new MapSolution(childLayout2, 0, false);
+        MapSolution child1 = new MapSolution(childLayout1, 0);
+        MapSolution child2 = new MapSolution(childLayout2, 0);
         return List.of(child1, child2);
     }
 

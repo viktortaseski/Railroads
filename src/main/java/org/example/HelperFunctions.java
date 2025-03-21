@@ -42,8 +42,8 @@ class HelperFunctions {
             if (current.equals(end) || (current.getX() == end.getX() && current.getY() == end.getY())) {
                 path.add(current);
                 return new PathResult(true, path.size(), new ArrayList<>(path),
-                        calculateDistance(path.get(path.size() - 1), end),
-                        path.get(path.size() - 1));
+                        calculateDistance(path.getLast(), end),
+                        path.getLast());
             }
 
             if (!visited.contains(current)) {
@@ -65,14 +65,14 @@ class HelperFunctions {
             // If no unvisited neighbors exist, backtrack
             if (!hasUnvisitedNeighbor) {
                 stack.pop();
-                path.remove(path.size() - 1); // Remove the current tile from the path
+                path.removeLast(); // Remove the current tile from the path
             }
         }
 
         // If no path is found
         return new PathResult(false, path.size(), new ArrayList<>(path),
-                calculateDistance(path.isEmpty() ? start : path.get(path.size() - 1), end),
-                path.isEmpty() ? null : path.get(path.size() - 1));
+                calculateDistance(path.isEmpty() ? start : path.getLast(), end),
+                path.isEmpty() ? null : path.getLast());
     }
 
     private static int calculateDistance(Tile a, Tile b) {
@@ -114,24 +114,18 @@ class HelperFunctions {
         // Special handling for TRAIN tile
         if (current.getType() == TileType.TRAIN) {
             // Check if this is the starting move (neighbor is not visited yet)
-            boolean isFirstMove = true; // This should be determined based on context (e.g., using a visited set or other logic)
 
-            if (isFirstMove) {
-                // Treat TRAIN as a CROSS only on the first move it can go any direction.
-                boolean currentToNeighbor = (0b1111 & (1 << dir)) != 0;
-                boolean neighborToCurrent;
-                if (neighbor.getType() == TileType.STATION) {
-                    neighborToCurrent = true;
-                } else if (neighbor.getType() == TileType.TRAIN) {
-                    neighborToCurrent = false;
-                } else {
-                    neighborToCurrent = (connections[neighbor.getTypeIndex()][neighbor.getRotationIndex()] & (1 << oppDir)) != 0;
-                }
-                return currentToNeighbor && neighborToCurrent;
+            // Treat TRAIN as a CROSS only on the first move it can go any direction.
+            boolean currentToNeighbor = (0b1111 & (1 << dir)) != 0;
+            boolean neighborToCurrent;
+            if (neighbor.getType() == TileType.STATION) {
+                neighborToCurrent = true;
+            } else if (neighbor.getType() == TileType.TRAIN) {
+                neighborToCurrent = false;
             } else {
-                // Any other encounter with a TRAIN tile is invalid
-                return false;
+                neighborToCurrent = (connections[neighbor.getTypeIndex()][neighbor.getRotationIndex()] & (1 << oppDir)) != 0;
             }
+            return currentToNeighbor && neighborToCurrent;
         }
 
 
@@ -178,7 +172,7 @@ class HelperFunctions {
         return currentToNeighbor && neighborToCurrent;
     }
 
-    public static Tile[][] createRandomMap(Train train, int size, Random rand) {
+    public static Tile[][] createRandomMap(int size, Random rand) {
         Tile[][] map = new Tile[size][size];
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {

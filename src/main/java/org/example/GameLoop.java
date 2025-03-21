@@ -2,7 +2,6 @@ package org.example;
 
 import javax.swing.*;
 import java.util.Queue;
-import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class GameLoop implements Runnable {
@@ -14,7 +13,6 @@ public class GameLoop implements Runnable {
     int y;
     Rotation rotation = null;
     TileType tileType = null;
-    Scanner scanner = new Scanner(System.in);
     Game game;
 
     GameLoop(Game game) {
@@ -33,7 +31,7 @@ public class GameLoop implements Runnable {
         if (character != null) {
             // Handle other game logic (tile placement, etc.)
             if (character == (int) 's') {
-                GeneticAlgorithm.start(game);
+                GeneticAlgorithm.start();
             }else if (Integer.parseInt(character.toString()) < Game.getSize() && !enteredX) {
                 x = Integer.parseInt(character.toString());
                 System.out.println("Successfully entered X = " + x);
@@ -59,19 +57,14 @@ public class GameLoop implements Runnable {
             if (Game.getMap()[x][y].getType() != TileType.TRAIN && Game.getMap()[x][y].getType() != TileType.STATION) {
                 Game.getMap()[x][y] = tileToRemove;
                 System.out.println("Successfully entered a new Tile. Position (" + x + ", " + y + ") Rotation: " + rotation.name() + " TileType: " + tileType.name());
-                tileToRemove = null;
-                enteredX = false;
-                enteredY = false;
-                rotation = null;
-                tileType = null;
             } else {
                 System.out.println("This tile is a train or a station, please enter a new one.");
-                tileToRemove = null;
-                enteredX = false;
-                enteredY = false;
-                rotation = null;
-                tileType = null;
             }
+            tileToRemove = null;
+            enteredX = false;
+            enteredY = false;
+            rotation = null;
+            tileType = null;
         }
     }
 

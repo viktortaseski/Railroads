@@ -4,7 +4,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 
 public class InputHandler implements Runnable {
-    private StringBuilder currentInput = new StringBuilder(); // To store the current sequence of digits
+    private final StringBuilder currentInput = new StringBuilder(); // To store the current sequence of digits
 
     @Override
     public void run() {
@@ -28,7 +28,7 @@ public class InputHandler implements Runnable {
                         GameLoop.events.add((int) 'm');
                         currentInput.setLength(0); // Reset input after adding
                     } else if (keyChar == '\n') { // Assume Enter key finalizes the number
-                        if (currentInput.length() > 0) {
+                        if (!currentInput.isEmpty()) {
                             try {
                                 // Parse the collected digits as a number and add to events
                                 int enteredValue = Integer.parseInt(currentInput.toString());

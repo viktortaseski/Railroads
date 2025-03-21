@@ -82,7 +82,7 @@ public class GenerateTests {
             Game game = new Game(mode, test.getSize(), test.getTrains(), 1234);
             game.init();
             long startTime = System.currentTimeMillis();
-            GeneticAlgorithm.start(game);
+            GeneticAlgorithm.start();
             long elapsedTime = System.currentTimeMillis() - startTime;
             // Retrieve the best map cost after running the test.
             int bestMapCost = Game.getBoardFitness();

@@ -45,12 +45,11 @@ public class Game {
             board[x][y] = start;
 
             // Generate unique end coordinates for the station.
-            x = rand.nextInt(size);
-            y = rand.nextInt(size);
-            while (usedCoordinates.contains(x + "," + y)) {
+            do {
                 x = rand.nextInt(size);
                 y = rand.nextInt(size);
-            }
+            } while (usedCoordinates.contains(x + "," + y));
+
             usedCoordinates.add(x + "," + y);
             Tile end = new Tile(x, y, Rotation.ZERO, TileType.STATION);
             board[x][y] = end;
@@ -82,22 +81,14 @@ public class Game {
         return mode;
     }
 
-    public Tile[][] getBoard() {
-        return board;
-    }
-
     public static void setBoard(Tile[][] board) {
         Game.board = board;
     }
 
     public static int getBoardFitness() {
-        MapSolution map = new MapSolution(board, 0, false);
+        MapSolution map = new MapSolution(board, 0);
         map.evaluateFitness();
         return map.getFitness();
-    }
-
-    public static int getNumTrains() {
-        return numTrains;
     }
 
     public static List<Train> getTrains() {

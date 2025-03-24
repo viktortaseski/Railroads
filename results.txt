@@ -1,28 +1,40 @@
-+--------------------+----------+----------+---------------+---------------+
-|     Test Type      |  Trains  |   Size   |   Time (ms)   |   Map Cost    |
-+--------------------+----------+----------+---------------+---------------+
-|  Sequential Test   |    1     |    2     |     15ms      |      10       |
-|  Sequential Test   |    2     |    5     |     48ms      |       9       |
-|  Sequential Test   |    5     |    10    |     122ms     |     -128      |
-|  Sequential Test   |    10    |    10    |     142ms     |      -39      |
-|  Sequential Test   |    20    |    20    |     915ms     |     -1100     |
-|  Sequential Test   |    50    |    30    |    4474ms     |     -3349     |
-|  Sequential Test   |    70    |    40    |    11054ms    |     -1245     |
-|  Sequential Test   |    80    |    50    |    20616ms    |     -4344     |
-|   Parallel Test    |    1     |    2     |      8ms      |      10       |
-|   Parallel Test    |    2     |    5     |      9ms      |       9       |
-|   Parallel Test    |    5     |    10    |     30ms      |     -128      |
-|   Parallel Test    |    10    |    10    |     44ms      |      -39      |
-|   Parallel Test    |    20    |    20    |     242ms     |     -1100     |
-|   Parallel Test    |    50    |    30    |    1003ms     |     -3349     |
-|   Parallel Test    |    70    |    40    |    2331ms     |     -1245     |
-|   Parallel Test    |    80    |    50    |    4573ms     |     -4344     |
-|  Distributed Test  |    1     |    2     |      7ms      |      10       |
-|  Distributed Test  |    2     |    5     |      8ms      |       9       |
-|  Distributed Test  |    5     |    10    |     52ms      |     -128      |
-|  Distributed Test  |    10    |    10    |     81ms      |      -39      |
-|  Distributed Test  |    20    |    20    |     503ms     |     -1100     |
-|  Distributed Test  |    50    |    30    |    2455ms     |     -3349     |
-|  Distributed Test  |    70    |    40    |    5994ms     |     -1245     |
-|  Distributed Test  |    80    |    50    |    11759ms    |     -4344     |
-+--------------------+----------+----------+---------------+---------------+
++--------------------+----------+----------+---------------+---------------+------------+
+|     Test Type      |   Size   |  Trains  |   Time (ms)   |   Map Cost    | Iterations |
++--------------------+----------+----------+---------------+---------------+------------+
+|  Sequential Test   |    2     |    1     |     28ms      |      203      |    100     |
+|  Sequential Test   |    5     |    2     |     45ms      |      206      |    100     |
+|  Sequential Test   |    10    |    5     |     174ms     |      237      |    100     |
+|  Sequential Test   |    20    |    20    |    2865ms     |     1055      |    100     |
+|  Sequential Test   |    30    |    50    |    14351ms    |     1312      |    100     |
+|  Sequential Test   |    40    |    70    |    40270ms    |     2471      |    100     |
+|  Sequential Test   |    2     |    1     |     19ms      |      200      |    1000    |
+|  Sequential Test   |    5     |    2     |     71ms      |      202      |    1000    |
+|  Sequential Test   |    10    |    5     |     853ms     |      221      |    1000    |
+|  Sequential Test   |    20    |    20    |    23958ms    |      467      |    1000    |
+|  Sequential Test   |    30    |    50    |   122619ms    |      589      |    1000    |
+|  Sequential Test   |    40    |    70    |   389833ms    |     1273      |    1000    |
+|   Parallel Test    |    2     |    1     |     23ms      |      203      |    100     |
+|   Parallel Test    |    5     |    2     |     13ms      |      206      |    100     |
+|   Parallel Test    |    10    |    5     |     53ms      |      237      |    100     |
+|   Parallel Test    |    20    |    20    |     745ms     |     1055      |    100     |
+|   Parallel Test    |    30    |    50    |    3844ms     |     1312      |    100     |
+|   Parallel Test    |    40    |    70    |    8942ms     |     2471      |    100     |
+|   Parallel Test    |    2     |    1     |     50ms      |      200      |    1000    |
+|   Parallel Test    |    5     |    2     |     77ms      |      202      |    1000    |
+|   Parallel Test    |    10    |    5     |     325ms     |      221      |    1000    |
+|   Parallel Test    |    20    |    20    |    5630ms     |      467      |    1000    |
+|   Parallel Test    |    30    |    50    |    28214ms    |      589      |    1000    |
+|   Parallel Test    |    40    |    70    |    94921ms    |     1273      |    1000    |
+|  Distributed Test  |    2     |    1     |     223ms     |      203      |    100     |
+|  Distributed Test  |    5     |    2     |     200ms     |      206      |    100     |
+|  Distributed Test  |    10    |    5     |     238ms     |      237      |    100     |
+|  Distributed Test  |    20    |    20    |     933ms     |     1055      |    100     |
+|  Distributed Test  |    30    |    50    |    3950ms     |     1312      |    100     |
+|  Distributed Test  |    40    |    70    |    10950ms    |     2471      |    100     |
+|  Distributed Test  |    2     |    1     |    2548ms     |      200      |    1000    |
+|  Distributed Test  |    5     |    2     |    2102ms     |      202      |    1000    |
+|  Distributed Test  |    10    |    5     |    1906ms     |      221      |    1000    |
+|  Distributed Test  |    20    |    20    |    7701ms     |      467      |    1000    |
+|  Distributed Test  |    30    |    50    |    35262ms    |      589      |    1000    |
+|  Distributed Test  |    40    |    70    |    93673ms    |     1273      |    1000    |
++--------------------+----------+----------+---------------+---------------+------------+

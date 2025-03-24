@@ -9,53 +9,51 @@ public class GeneticAlgorithm {
         Random random = new Random(12345);
         long startTime = 0;
         long endTime = 0;
+        int iterations = Game.getIterations();
 
         if (Game.getMode() == 1) {
-            System.out.println("Running Sequential Genetic Algorithm");
+            System.out.println("Running Sequential Genetic Algorithm... \nSize: " + Game.getSize() + "\nTrains: " + Game.getTrains().size() + "\nIterations: " + iterations);
             startTime = System.currentTimeMillis();
-                runSequential(100, 15, random);
+            runSequential(iterations, 50, random);
             endTime = System.currentTimeMillis();
         } else if (Game.getMode() == 2) {
-            System.out.println("Running Genetic Algorithm with parallel fitness evaluation");
+            System.out.println("Running GA with Parallel Evaluation... \nSize: " + Game.getSize() + "\nTrains: " + Game.getTrains().size() + "\nIterations: " + iterations);
             startTime = System.currentTimeMillis();
-                runParallel(100, 15, random);
-
+            runParallel(iterations, 50, random);
             endTime = System.currentTimeMillis();
         } else if (Game.getMode() == 3) {
-            System.out.println("Running Distributed Genetic Algorithm");
+            System.out.println("Running Distributed Genetic Algorithm... \nSize: " + Game.getSize() + "\nTrains: " + Game.getTrains().size() + "\nIterations: " + iterations);
             startTime = System.currentTimeMillis();
-            DistributedSolution.runDistributed(100, 15, random);
+            DistributedSolution.runDistributed(iterations, 50, random);
             endTime = System.currentTimeMillis();
         }
 
-
+        System.out.println("==========================================");
         // Print results for each train.
+        /*
         for (Train train : Game.getTrains()) {
-            System.out.println("========================================");
-            System.out.println("Path exists: " + train.getResult().isPathExists());
-            System.out.print("Path for Train[" + train.getId() + "]: ");
+            System.out.println("Reached station: " + train.getResult().isPathExists() +
+                    " | Path for Train[" + train.getId() + "]: ");
             for (Tile path : train.getResult().getPath()) {
                 System.out.print("(" + path.getX() + "," + path.getY() + ") ");
             }
-            System.out.println("\n========================================");
+            System.out.println("\n==========================================");
         }
-        System.out.println("Best map cost is: " + Game.getBoardFitness());
-        System.out.println("Time: " + (endTime - startTime) + "ms");
+         */
+        System.out.println("MapSolution with best cost is: " + Game.getBoardFitness());
+        System.out.println("Time: " + (endTime - startTime) + "ms or " + ((endTime - startTime)/1000) + "s.");
     }
-
 
     public static void runSequential(int iterations, int populationSize, Random random) {
         List<MapSolution> population = initPopulation(populationSize);
 
-        // Create a fixed thread pool with as many threads as solutions per generation.
-
         for (int i = 0; i < iterations; i++) {
-            // 1. Evaluate fitness for current generation.
+
+            // Evaluate fitness for current generation.
             for (MapSolution solution : population) {
                 solution.evaluateFitness();
             }
-
-            // 2. Sort population by fitness (lower is better).
+            // Generate new generation.
             population = creatingNewGeneration(population, populationSize, random);
         }
 
@@ -66,19 +64,15 @@ public class GeneticAlgorithm {
 
     public static void runParallel(int iterations, int populationSize, Random random) {
         List<MapSolution> population = initPopulation(populationSize);
-
-        // Create a fixed thread pool with as many threads as solutions per generation.
         ExecutorService executor = Executors.newFixedThreadPool(populationSize);
 
         for (int i = 0; i < iterations; i++) {
-            // 1. Evaluate fitness for current generation.
+            // Evaluate fitness for current generation in parallel.
             parallelFitnessEvaluation(population, executor);
-
-            // 2. Sort population by fitness (lower is better).
+            // Generate new generation.
             population = creatingNewGeneration(population, populationSize, random);
         }
 
-        // Shutdown the executor.
         executor.shutdown();
         try {
             executor.awaitTermination(1, TimeUnit.MINUTES);
@@ -90,56 +84,71 @@ public class GeneticAlgorithm {
         population.sort(Comparator.comparingInt(MapSolution::getFitness));
         Game.setBoard(population.getFirst().getMapLayout());
     }
-    private static List<MapSolution> creatingNewGeneration(List<MapSolution> population, int populationSize, Random random) {
+
+    /**
+     * Creates the next generation from the given population.
+     * The population is first sorted. Then 10% (10% of 50 = 5 MapSolutions) of elite solutions are carried over directly.
+     * The remainder of the next generation is produced by selecting parents using weighted random selection that professor Domen suggested.
+     * (using ranking weights) and then applying crossover and mutation.
+     * After reaching 50 MapSolutions we return the nextGeneration.
+     */
+    static List<MapSolution> creatingNewGeneration(List<MapSolution> population, int populationSize, Random random) {
+        // Sort population by fitness (lower is better).
         population.sort(Comparator.comparingInt(MapSolution::getFitness));
 
-        // 3. Elitism: retain the top 2 solutions.
-        List<MapSolution> nextGeneration = new ArrayList<>(population.subList(0, Math.min(5, population.size())));
+        // Elitism: retain a small percentage of the best solutions.
+        int eliteCount = Math.max(1, populationSize / 10); // 10% elitism
+        List<MapSolution> nextGeneration = new ArrayList<>(population.subList(0, eliteCount));
 
-        // 4. Generate offspring sequentially to ensure deterministic random behavior.
+        // Generate the rest of the population using weighted random selection.
         List<MapSolution> offspringList = new ArrayList<>();
-        while (offspringList.size() < (populationSize - 2)) {
+        while (offspringList.size() < (populationSize - eliteCount)) {
             MapSolution parent1 = selectParent(population, random);
             MapSolution parent2 = selectParent(population, random);
 
-            // Diagonal crossover (sequential).
+            // Diagonal crossover (sequential) returns two offspring.
             List<MapSolution> offspring = crossover(parent1, parent2, random);
             for (MapSolution child : offspring) {
-                if (offspringList.size() < (populationSize - 2)) {
-                    // Mutation is also sequential.
+                if (offspringList.size() < (populationSize - eliteCount)) {
                     mutate(child, random);
                     offspringList.add(child);
                 }
             }
         }
-
-        // 5. Form the next generation.
         nextGeneration.addAll(offspringList);
-        population = nextGeneration;
-        return population;
+        return nextGeneration;
     }
 
-    // Helper to evaluate fitness in parallel.
-    private static void parallelFitnessEvaluation(List<MapSolution> solutions, ExecutorService executor) {
-        List<Callable<Void>> tasks = new ArrayList<>();
-        for (MapSolution solution : solutions) {
-            tasks.add(() -> {
-                solution.evaluateFitness();
-                return null;
-            });
+    /**
+     * Weighted random selection based on ranking.
+     * Assumes the population is sorted in ascending order of fitness.
+     * The best candidate (index 0) gets the highest weight.
+     *
+     * @param population the sorted list of solutions
+     * @param random     the seeded Random instance
+     * @return a selected MapSolution
+     */
+    public static MapSolution selectParent(List<MapSolution> population, Random random) {
+        int n = population.size();
+        int totalWeight = n * (n + 1) / 2; // sum of weights 1...n
+        int randomWeight = random.nextInt(totalWeight);
+        for (int i = 0; i < n; i++) {
+            int weight = n - i; // best candidate gets highest weight (n)
+            if (randomWeight < weight) {
+                return population.get(i);
+            }
+            randomWeight -= weight;
         }
-        try {
-            executor.invokeAll(tasks);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        return population.get(n - 1);
     }
 
     public static List<MapSolution> initPopulation(int populationSize) {
         List<MapSolution> population = new ArrayList<>();
+        // Add the original map as a starting solution.
+        population.add(new MapSolution(Game.getMap(), 0));
         // Use a dedicated RNG for population initialization.
         Random initRandom = new Random(1234);
-        for (int i = 0; i < populationSize; i++) {
+        for (int i = 0; i < populationSize - 1; i++) {
             MapSolution solution = new MapSolution(
                     HelperFunctions.createRandomMap(Game.getSize(), initRandom),
                     0
@@ -148,11 +157,6 @@ public class GeneticAlgorithm {
             population.add(solution);
         }
         return population;
-    }
-
-    public static MapSolution selectParent(List<MapSolution> population, Random random) {
-        // Select a parent from the top 50% of the population.
-        return population.get(random.nextInt(population.size() / 2));
     }
 
     public static List<MapSolution> crossover(MapSolution parent1, MapSolution parent2, Random random) {
@@ -217,5 +221,21 @@ public class GeneticAlgorithm {
         }
 
         solution.setMapLayout(map);
+    }
+
+    // Helper to evaluate fitness in parallel.
+    static void parallelFitnessEvaluation(List<MapSolution> solutions, ExecutorService executor) {
+        List<Callable<Void>> tasks = new ArrayList<>();
+        for (MapSolution solution : solutions) {
+            tasks.add(() -> {
+                solution.evaluateFitness();
+                return null;
+            });
+        }
+        try {
+            executor.invokeAll(tasks);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

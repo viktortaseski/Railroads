@@ -108,24 +108,23 @@ class HelperFunctions {
         int oppDir = (dir + 2) % 4;
 
         if (neighbor.getType() == TileType.TRAIN) {
-            return false; // Cannot connect to a TRAIN in any case except the first move
+            return false; // Cannot connect to a TRAIN in any case
         }
 
         // Special handling for TRAIN tile
         if (current.getType() == TileType.TRAIN) {
-            // Check if this is the starting move (neighbor is not visited yet)
-
-            // Treat TRAIN as a CROSS only on the first move it can go any direction.
-            boolean currentToNeighbor = (0b1111 & (1 << dir)) != 0;
+            // Treat TRAIN as a CROSS
+            //boolean currentToNeighbor = true; //(0b1111 & (1 << dir)) != 0;
             boolean neighborToCurrent;
             if (neighbor.getType() == TileType.STATION) {
                 neighborToCurrent = true;
             } else if (neighbor.getType() == TileType.TRAIN) {
                 neighborToCurrent = false;
             } else {
+                // Check if neighbor connects to the current tile
                 neighborToCurrent = (connections[neighbor.getTypeIndex()][neighbor.getRotationIndex()] & (1 << oppDir)) != 0;
             }
-            return currentToNeighbor && neighborToCurrent;
+            return neighborToCurrent;
         }
 
 

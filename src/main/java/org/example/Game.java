@@ -5,14 +5,16 @@ import java.util.*;
 public class Game {
     public static int size;
     private static int mode;
+    private static int iterations;
     private static Tile[][] board;
     private static int numTrains;
     public static List<Train> TRAINS;
     private final long seed; // Seed for consistent randomness
 
-    public Game(int mode, int size, int numTrains, long seed) {
+    public Game(int mode, int iterations, int size, int numTrains, long seed) {
         Game.mode = mode;
         Game.size = size;
+        Game.iterations = iterations;
         board = new Tile[size][size];
         Game.numTrains = numTrains;
         TRAINS = new ArrayList<>();
@@ -60,13 +62,17 @@ public class Game {
             TRAINS.add(train);
         }
 
-        int index = 0;
+        int id = 0;
         for (Train train : TRAINS) {
-            index++;
-            System.out.println("Train[" + index + "] (" + train.getStartTile().getX() + ", " + train.getStartTile().getY() +
-                    ") (" + train.getEndTile().getX() + ", " + train.getEndTile().getY() + ")");
-            train.setId(index);
+            id++;
+            //System.out.println("Train[" + index + "] (" + train.getStartTile().getX() + ", " + train.getStartTile().getY() +
+            //        ") (" + train.getEndTile().getX() + ", " + train.getEndTile().getY() + ")");
+            train.setId(id);
         }
+    }
+
+    public static void changeTile(int x, int y, Tile tile) {
+        board[x][y] = tile;
     }
 
     public static Tile[][] getMap() {
@@ -75,6 +81,10 @@ public class Game {
 
     public static int getSize() {
         return size;
+    }
+
+    public static int getIterations() {
+        return iterations;
     }
 
     public static int getMode() {

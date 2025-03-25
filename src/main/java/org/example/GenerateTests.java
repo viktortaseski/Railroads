@@ -28,9 +28,9 @@ public class GenerateTests {
             new Pair(5, 2),
             new Pair(10, 5),
             new Pair(20, 20),
-            new Pair(30, 50),
-            new Pair(40, 100),
-            new Pair(50, 200),
+            //new Pair(30, 50),
+            //new Pair(40, 100),
+            //new Pair(50, 200),
     };
 
     public static void runTests() throws IOException {

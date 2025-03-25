@@ -55,16 +55,11 @@ public class GenerateTests {
         output.append(runTestsForMode(1, 100, "Sequential", w1, w2, w3, w4, w5, w6));
         // Run all parallel tests with 100 iterations.
         output.append(runTestsForMode(2, 100, "Parallel", w1, w2, w3, w4, w5, w6));
-        // Run distributed tests with 100 iterations.
-        output.append(runTestsForMode(3, 100, "Distributed", w1, w2, w3, w4, w5, w6));
-
         // Add a separator line between 100 iterations and 1000 iterations tests.
         output.append(separator);
-
         // Run All tests again but with 1000 iterations.
         output.append(runTestsForMode(1, 1000, "Sequential", w1, w2, w3, w4, w5, w6));
         output.append(runTestsForMode(2, 1000, "Parallel", w1, w2, w3, w4, w5, w6));
-        output.append(runTestsForMode(3, 1000, "Distributed", w1, w2, w3, w4, w5, w6));
 
         output.append(separator);
 
@@ -75,7 +70,7 @@ public class GenerateTests {
     /**
      * Runs tests for a given mode and returns formatted rows.
      *
-     * @param mode  1 for sequential, 2 for parallel, 3 for distributed.
+     * @param mode  1 for sequential, 2 for parallel
      * @param iterations Number of iterations to run.
      * @param label The label for the test type.
      * @param w1    Column width for Test Type.

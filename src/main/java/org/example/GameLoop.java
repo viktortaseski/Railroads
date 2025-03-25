@@ -14,6 +14,7 @@ public class GameLoop implements Runnable {
     Rotation rotation = null;
     TileType tileType = null;
     Game game;
+    boolean hasEnded = false;
 
     GameLoop(Game game) {
         this.game = game;
@@ -32,6 +33,7 @@ public class GameLoop implements Runnable {
             // Handle other game logic (tile placement, etc.)
             if (character == (int) 's') {
                 GeneticAlgorithm.start();
+                hasEnded = true;
             }else if (Integer.parseInt(character.toString()) < Game.getSize() && !enteredX) {
                 x = Integer.parseInt(character.toString());
                 System.out.println("Successfully entered X = " + x);

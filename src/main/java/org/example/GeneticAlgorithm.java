@@ -21,11 +21,6 @@ public class GeneticAlgorithm {
             startTime = System.currentTimeMillis();
             runParallel(iterations, 50, random);
             endTime = System.currentTimeMillis();
-        } else if (Game.getMode() == 3) {
-            System.out.println("Running Distributed Genetic Algorithm... \nSize: " + Game.getSize() + "\nTrains: " + Game.getTrains().size() + "\nIterations: " + iterations);
-            startTime = System.currentTimeMillis();
-            DistributedSolution.runDistributed(iterations, 50, random);
-            endTime = System.currentTimeMillis();
         }
 
         // Print results for each train.

@@ -28,27 +28,33 @@ public class GeneticAlgorithm {
             endTime = System.currentTimeMillis();
         }
 
-        System.out.println("==========================================");
         // Print results for each train.
-        /*
-        for (Train train : Game.getTrains()) {
-            System.out.println("Reached station: " + train.getResult().isPathExists() +
-                    " | Path for Train[" + train.getId() + "]: ");
-            for (Tile path : train.getResult().getPath()) {
-                System.out.print("(" + path.getX() + "," + path.getY() + ") ");
-            }
-            System.out.println("\n==========================================");
-        }
-         */
-        System.out.println("MapSolution with best cost is: " + Game.getBoardFitness());
+
+//        for (Train train : Game.getTrains()) {
+//            System.out.println("Reached station: " + train.getResult().isPathExists() +
+//                    " | Path for Train[" + train.getId() + "]: ");
+//            for (Tile path : train.getResult().getPath()) {
+//                System.out.print("(" + path.getX() + "," + path.getY() + ") ");
+//            }
+//            System.out.println("\n==========================================");
+//        }
+
+        System.out.println("\nMapSolution with best cost is: " + Game.getBoardFitness());
         System.out.println("Time: " + (endTime - startTime) + "ms or " + ((endTime - startTime)/1000) + "s.");
+        System.out.println("==========================================");
     }
 
     public static void runSequential(int iterations, int populationSize, Random random) {
         List<MapSolution> population = initPopulation(populationSize);
 
         for (int i = 0; i < iterations; i++) {
-
+            // Track if we are progressing
+            if (i % 50 == 0) {  // Print "|" every 50 iterations
+                if (i % (50 * 5) == 0 && i != 0) {  // Add a tab every 5th "|"
+                    System.out.print("\t");
+                }
+                System.out.print("|");
+            }
             // Evaluate fitness for current generation.
             for (MapSolution solution : population) {
                 solution.evaluateFitness();
@@ -67,12 +73,17 @@ public class GeneticAlgorithm {
         ExecutorService executor = Executors.newFixedThreadPool(populationSize);
 
         for (int i = 0; i < iterations; i++) {
+            if (i % 50 == 0) {  // Print "|" every 50 iterations
+                if (i % (50 * 5) == 0 && i != 0) {  // Add a tab every 5th "|"
+                    System.out.print("\t");
+                }
+                System.out.print("|");
+            }
             // Evaluate fitness for current generation in parallel.
             parallelFitnessEvaluation(population, executor);
             // Generate new generation.
             population = creatingNewGeneration(population, populationSize, random);
         }
-
         executor.shutdown();
         try {
             executor.awaitTermination(1, TimeUnit.MINUTES);

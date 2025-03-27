@@ -1,6 +1,10 @@
 package org.example;
+import java.io.Serializable;
 
-public class MapSolution extends HelperFunctions {
+public class MapSolution extends HelperFunctions implements Serializable {
+    // Optionally, include a serialVersionUID
+    private static final long serialVersionUID = 1L;
+
 
     private Tile[][] mapLayout;
     private int mapCost;

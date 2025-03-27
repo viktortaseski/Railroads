@@ -51,7 +51,7 @@ public class Main {
 
         System.out.println("=========================");
         System.out.println("=\t\tMode: " + mode + "\t\t\t=");
-        System.out.println("=\t\tMap size: " + mapSize + "\t\t=");
+        System.out.println("=\t\tMap size: " + mapSize + "\t=");
         System.out.println("=\t\tTrains: " + numberOfTrains + "\t\t=");
         System.out.println("=========================\n");
         System.out.println("========= Starting.. =========");

@@ -1,11 +1,13 @@
 package org.example;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 
-public class Tile {
+public class Tile  implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final int x;
     private final int y;
     private Rotation rotation;

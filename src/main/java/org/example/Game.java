@@ -1,8 +1,9 @@
 package org.example;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Game {
+public class Game implements Serializable {
     public static int size;
     private static int mode;
     private static int iterations;

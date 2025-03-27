@@ -1,10 +1,11 @@
 package org.example;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class PathResult {
+public class PathResult implements Serializable {
     private int id;
     private boolean pathExists;
     private int pathCost;

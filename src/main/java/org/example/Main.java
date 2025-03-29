@@ -34,7 +34,7 @@ public class Main {
 
         int mapSize;
         int numberOfTrains;
-        int iterations = 100;
+        int iterations;
         do {
             System.out.println("Enter map size: 'max: 50, min: 3' ");
             mapSize = scanner.nextInt();

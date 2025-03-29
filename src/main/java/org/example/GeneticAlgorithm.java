@@ -20,18 +20,20 @@ public class GeneticAlgorithm {
             startTime = System.currentTimeMillis();
             runParallel(iterations, 50, random);
             endTime = System.currentTimeMillis();
+        } else if (Game.getMode() == 3) {
+            System.out.println("NOT IMPLEMENTED YET");
         }
 
-        // Print results for each train.
-
-//        for (Train train : Game.getTrains()) {
-//            System.out.println("Reached station: " + train.getResult().isPathExists() +
-//                    " | Path for Train[" + train.getId() + "]: ");
-//            for (Tile path : train.getResult().getPath()) {
-//                System.out.print("(" + path.getX() + "," + path.getY() + ") ");
-//            }
-//            System.out.println("\n==========================================");
-//        }
+        /* Print results for each train.
+        for (Train train : Game.getTrains()) {
+            System.out.println("Reached station: " + train.getResult().isPathExists() +
+                    " | Path for Train[" + train.getId() + "]: ");
+            for (Tile path : train.getResult().getPath()) {
+                System.out.print("(" + path.getX() + "," + path.getY() + ") ");
+            }
+            System.out.println("\n==========================================");
+        }
+         */
 
         System.out.println("\nMapSolution with best cost is: " + Game.getBoardFitness());
         System.out.println("Time: " + (endTime - startTime) + "ms or " + ((endTime - startTime)/1000) + "s.");

@@ -59,6 +59,10 @@ public class GeneticAlgorithm {
             population = creatingNewGeneration(population, populationSize, random);
         }
 
+        // Final population evaluation
+        for (MapSolution solution : population) {
+            solution.evaluateFitness();
+        }
         // Set the best solution on the game board.
         population.sort(Comparator.comparingInt(MapSolution::getFitness));
         Game.setBoard(population.getFirst().getMapLayout());
@@ -80,6 +84,9 @@ public class GeneticAlgorithm {
             // Generate new generation.
             population = creatingNewGeneration(population, populationSize, random);
         }
+
+        parallelFitnessEvaluation(population, executor);
+
         executor.shutdown();
         try {
             executor.awaitTermination(1, TimeUnit.MINUTES);

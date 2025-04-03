@@ -1,21 +1,29 @@
 +--------------------+----------+----------+---------------+---------------+------------+
 |     Test Type      |   Size   |  Trains  |   Time (ms)   |   Map Cost    | Iterations |
 +--------------------+----------+----------+---------------+---------------+------------+
-|  Sequential Test   |    2     |    1     |     18ms      |      200      |    100     |
-|  Sequential Test   |    5     |    2     |     43ms      |      203      |    100     |
-|  Sequential Test   |    10    |    5     |     161ms     |      232      |    100     |
-|  Sequential Test   |    20    |    20    |    2950ms     |      589      |    100     |
-|   Parallel Test    |    2     |    1     |     21ms      |      200      |    100     |
-|   Parallel Test    |    5     |    2     |     15ms      |      203      |    100     |
-|   Parallel Test    |    10    |    5     |     48ms      |      232      |    100     |
-|   Parallel Test    |    20    |    20    |     809ms     |      589      |    100     |
+|  Sequential Test   |    2     |    1     |     29ms      |      200      |    100     |
+|  Sequential Test   |    5     |    2     |     39ms      |      203      |    100     |
+|  Sequential Test   |    10    |    5     |     153ms     |      232      |    100     |
+|  Sequential Test   |    20    |    20    |    2841ms     |      589      |    100     |
+|  Sequential Test   |    30    |    50    |    14156ms    |     1298      |    100     |
+|  Sequential Test   |    40    |   100    |    51988ms    |     2297      |    100     |
+|   Parallel Test    |    2     |    1     |     15ms      |      200      |    100     |
+|   Parallel Test    |    5     |    2     |     16ms      |      203      |    100     |
+|   Parallel Test    |    10    |    5     |     46ms      |      232      |    100     |
+|   Parallel Test    |    20    |    20    |     617ms     |      589      |    100     |
+|   Parallel Test    |    30    |    50    |    2941ms     |     1298      |    100     |
+|   Parallel Test    |    40    |   100    |    10631ms    |     2297      |    100     |
 +--------------------+----------+----------+---------------+---------------+------------+
-|  Sequential Test   |    2     |    1     |     35ms      |      200      |    1000    |
-|  Sequential Test   |    5     |    2     |     76ms      |      202      |    1000    |
-|  Sequential Test   |    10    |    5     |     848ms     |      219      |    1000    |
-|  Sequential Test   |    20    |    20    |    23354ms    |      349      |    1000    |
-|   Parallel Test    |    2     |    1     |     49ms      |      200      |    1000    |
-|   Parallel Test    |    5     |    2     |     76ms      |      202      |    1000    |
-|   Parallel Test    |    10    |    5     |     343ms     |      219      |    1000    |
-|   Parallel Test    |    20    |    20    |    5553ms     |      349      |    1000    |
+|  Sequential Test   |    2     |    1     |     18ms      |      200      |    1000    |
+|  Sequential Test   |    5     |    2     |     69ms      |      202      |    1000    |
+|  Sequential Test   |    10    |    5     |     835ms     |      219      |    1000    |
+|  Sequential Test   |    20    |    20    |    22581ms    |      349      |    1000    |
+|  Sequential Test   |    30    |    50    |   113232ms    |      585      |    1000    |
+|  Sequential Test   |    40    |   100    |   503211ms    |     1217      |    1000    |
+|   Parallel Test    |    2     |    1     |     45ms      |      200      |    1000    |
+|   Parallel Test    |    5     |    2     |     67ms      |      202      |    1000    |
+|   Parallel Test    |    10    |    5     |     331ms     |      219      |    1000    |
+|   Parallel Test    |    20    |    20    |    4967ms     |      349      |    1000    |
+|   Parallel Test    |    30    |    50    |    23954ms    |      585      |    1000    |
+|   Parallel Test    |    40    |   100    |   117484ms    |     1217      |    1000    |
 +--------------------+----------+----------+---------------+---------------+------------+

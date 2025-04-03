@@ -1,21 +1,21 @@
 +--------------------+----------+----------+---------------+---------------+------------+
 |     Test Type      |   Size   |  Trains  |   Time (ms)   |   Map Cost    | Iterations |
 +--------------------+----------+----------+---------------+---------------+------------+
-|  Sequential Test   |    2     |    1     |     28ms      |      203      |    100     |
-|  Sequential Test   |    5     |    2     |     44ms      |      206      |    100     |
-|  Sequential Test   |    10    |    5     |     172ms     |      237      |    100     |
-|  Sequential Test   |    20    |    20    |    2801ms     |     1055      |    100     |
-|   Parallel Test    |    2     |    1     |     16ms      |      203      |    100     |
-|   Parallel Test    |    5     |    2     |     14ms      |      206      |    100     |
-|   Parallel Test    |    10    |    5     |     46ms      |      237      |    100     |
-|   Parallel Test    |    20    |    20    |     613ms     |     1055      |    100     |
+|  Sequential Test   |    2     |    1     |     18ms      |      200      |    100     |
+|  Sequential Test   |    5     |    2     |     43ms      |      203      |    100     |
+|  Sequential Test   |    10    |    5     |     161ms     |      232      |    100     |
+|  Sequential Test   |    20    |    20    |    2950ms     |      589      |    100     |
+|   Parallel Test    |    2     |    1     |     21ms      |      200      |    100     |
+|   Parallel Test    |    5     |    2     |     15ms      |      203      |    100     |
+|   Parallel Test    |    10    |    5     |     48ms      |      232      |    100     |
+|   Parallel Test    |    20    |    20    |     809ms     |      589      |    100     |
 +--------------------+----------+----------+---------------+---------------+------------+
-|  Sequential Test   |    2     |    1     |     21ms      |      200      |    1000    |
-|  Sequential Test   |    5     |    2     |     69ms      |      202      |    1000    |
-|  Sequential Test   |    10    |    5     |     811ms     |      221      |    1000    |
-|  Sequential Test   |    20    |    20    |    23301ms    |      467      |    1000    |
-|   Parallel Test    |    2     |    1     |     47ms      |      200      |    1000    |
-|   Parallel Test    |    5     |    2     |     75ms      |      202      |    1000    |
-|   Parallel Test    |    10    |    5     |     356ms     |      221      |    1000    |
-|   Parallel Test    |    20    |    20    |    5243ms     |      467      |    1000    |
+|  Sequential Test   |    2     |    1     |     35ms      |      200      |    1000    |
+|  Sequential Test   |    5     |    2     |     76ms      |      202      |    1000    |
+|  Sequential Test   |    10    |    5     |     848ms     |      219      |    1000    |
+|  Sequential Test   |    20    |    20    |    23354ms    |      349      |    1000    |
+|   Parallel Test    |    2     |    1     |     49ms      |      200      |    1000    |
+|   Parallel Test    |    5     |    2     |     76ms      |      202      |    1000    |
+|   Parallel Test    |    10    |    5     |     343ms     |      219      |    1000    |
+|   Parallel Test    |    20    |    20    |    5553ms     |      349      |    1000    |
 +--------------------+----------+----------+---------------+---------------+------------+

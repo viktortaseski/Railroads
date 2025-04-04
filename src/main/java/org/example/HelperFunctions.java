@@ -13,7 +13,6 @@ class HelperFunctions {
     };
 
     // Idea is to find the best path for the given train and return the map.
-    // Idea is to find the best path for the given train and return the map.
     public static PathResult dfs(Train train, MapSolution solution) {
 
         Tile[][] map = solution.getMapLayout();
@@ -32,13 +31,17 @@ class HelperFunctions {
         HashSet<Tile> visited = new HashSet<>();
         Stack<Tile> stack = new Stack<>();
 
+
+        // Stack is used to store the path.
+        // If we come to a dead end we pop the stack (reverse)
+        // I used this approach to the DFS since this is how it was taught to us in Data Structures and Algorithms course.
         // Stack will hold the tile and its path up to this point
         stack.push(start);
 
         while (!stack.isEmpty()) {
             Tile current = stack.peek();
 
-            // If we have reached the end tile
+            // If we have reached the end tile (found a path) then end the DFS.
             if (current.equals(end) || (current.getX() == end.getX() && current.getY() == end.getY())) {
                 path.add(current);
                 return new PathResult(true, path.size(), new ArrayList<>(path),
@@ -69,7 +72,7 @@ class HelperFunctions {
             }
         }
 
-        // If no path is found
+        // If no path is found just return the reached path and set pathExists to false.
         return new PathResult(false, path.size(), new ArrayList<>(path),
                 calculateDistance(path.isEmpty() ? start : path.getLast(), end),
                 path.isEmpty() ? null : path.getLast());
@@ -108,18 +111,18 @@ class HelperFunctions {
         int oppDir = (dir + 2) % 4;
 
         if (neighbor.getType() == TileType.TRAIN) {
-            return false; // Cannot connect to a TRAIN in any case
+            return false; // Cannot connect to a TRAIN in any case.
         }
 
-        // Special handling for TRAIN tile
+        // Special handling for TRAIN tile on first move
         if (current.getType() == TileType.TRAIN) {
             // Treat TRAIN as a CROSS
             //boolean currentToNeighbor = true; //(0b1111 & (1 << dir)) != 0;
             boolean neighborToCurrent;
             if (neighbor.getType() == TileType.STATION) {
-                neighborToCurrent = true;
+                neighborToCurrent = true;   // Always connect to a station since station is considered as a CROSS.
             } else if (neighbor.getType() == TileType.TRAIN) {
-                neighborToCurrent = false;
+                neighborToCurrent = false;  // Cannot connect to a train.
             } else {
                 // Check if neighbor connects to the current tile
                 neighborToCurrent = (connections[neighbor.getTypeIndex()][neighbor.getRotationIndex()] & (1 << oppDir)) != 0;
@@ -146,17 +149,20 @@ class HelperFunctions {
         if (current.getType() == TileType.TRAIN && neighbor.getType() == TileType.STATION) {
             return true;
         }
-        //CASE: STATION next to TRAIN return false since by MY game logic you cannot cross a TRAIN tile.
+        // CASE: STATION next to TRAIN return false since by MY game logic you cannot cross a TRAIN tile.
         if (current.getType() == TileType.STATION && neighbor.getType() == TileType.TRAIN){
             return false;
         }
+        // CASE: TRAIN next to TRAIN
         if (current.getType() == TileType.TRAIN && neighbor.getType() == TileType.TRAIN) {
             return false;
         }
+        // CASE: STATION next to STATION
         if (current.getType() == TileType.STATION && neighbor.getType() == TileType.STATION) {
             return true;
         }
 
+        // Case we get and invalid connectivity comparison
         if (currentType < 0 || currentType >= connections.length ||
                 neighborType < 0 || neighborType >= connections.length ||
                 currentRotation < 0 || currentRotation >= 4 || neighborRotation < 0 || neighborRotation >= 4) {
@@ -168,6 +174,7 @@ class HelperFunctions {
         boolean currentToNeighbor = (connections[currentType][currentRotation] & (1 << dir)) != 0;
         boolean neighborToCurrent = (connections[neighborType][neighborRotation] & (1 << oppDir)) != 0;
 
+        // If both current and neighbor connect to each other this will return true.
         return currentToNeighbor && neighborToCurrent;
     }
 

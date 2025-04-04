@@ -15,7 +15,7 @@ public class MapSolution extends HelperFunctions implements Serializable {
     }
 
     public void evaluateFitness() {
-        // Lower fitness is better. We start at 10 so that fitness doesn't go negative.
+        // Lower fitness is better. We start at 200 so that fitness doesn't go negative.
         int fitness = 200;
 
         // For every train, add the fitness independently since each train has its own path.
@@ -30,18 +30,18 @@ public class MapSolution extends HelperFunctions implements Serializable {
                 fitness += 100;   // Penalty for not reaching the end.
             }
 
-            fitness += distance;  // Penalty for solutions that are not close.
-            // I commented this out since I get worse maps when this is used
-            fitness += result.getPath().size() ;   // Penalty for longer paths (commented out).
-            fitness -= cost;      // Reward exploration.
+            fitness += distance;                    // Penalty for solutions that are not close.
+            fitness += result.getPath().size() ;    // Penalty for longer paths.
+            fitness -= cost;                        // Reward exploration.
         }
-        fitness += this.calculateMapCost();  // Reward low map costs.
+        fitness += this.calculateMapCost();         // Reward low map costs since lower cost will be better fitness.
 
         this.setFitness(fitness);
     }
 
     public int calculateMapCost() {
         int cost = 0;
+        // Goes through all map tiles and sums the cost.
         for (Tile[] tiles : mapLayout) {
             for (Tile tile : tiles) {
                 if (tile.getType() != TileType.TRAIN &&

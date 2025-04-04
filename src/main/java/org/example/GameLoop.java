@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class GameLoop implements Runnable {
     public static Queue<Integer> events = new ConcurrentLinkedQueue<>();
-    Tile tileToRemove = null;
+    Tile replacementTile = null;
     boolean enteredX = false;
     boolean enteredY = false;
     int x;
@@ -23,6 +23,8 @@ public class GameLoop implements Runnable {
     @Override
     public void run() {
         System.out.println("Starting GameLoop...");
+        // Timer is to update the map changes in case of customizing the map
+        // Also to constantly listen to any input.
         Timer timer = new Timer(16, e -> tick());
         timer.start();
     }
@@ -53,17 +55,19 @@ public class GameLoop implements Runnable {
             }
         }
 
-        // Proceed with tile placement if conditions are met
+        // Proceed with tile placement if all conditions are met.
         if (enteredX && enteredY && rotation != null && tileType != null) {
-            tileToRemove = new Tile(x, y, rotation, tileType);
+            // This is actually the tile that replaces the tile that is removed.
+            replacementTile = new Tile(x, y, rotation, tileType);
             if (Game.getMap()[x][y].getType() != TileType.TRAIN && Game.getMap()[x][y].getType() != TileType.STATION) {
-                Game.getMap()[x][y] = tileToRemove;
-                Game.changeTile(x, y, tileToRemove);
+                Game.getMap()[x][y] = replacementTile;
+                Game.changeTile(x, y, replacementTile);
                 System.out.println("Successfully entered a new Tile. Position (" + x + ", " + y + ") Rotation: " + rotation.name() + " TileType: " + tileType.name());
             } else {
                 System.out.println("This tile is a train or a station, please enter a new one.");
             }
-            tileToRemove = null;
+            // Reset the tileToReplace so it is ready for the next input
+            replacementTile = null;
             enteredX = false;
             enteredY = false;
             rotation = null;

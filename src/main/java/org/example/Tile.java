@@ -25,13 +25,13 @@ public class Tile  implements Serializable {
         return new Tile(x, y, Rotation.values()[random.nextInt(Rotation.values().length)], TileType.values()[random.nextInt(TileType.values().length - 2)]);
     }
 
+    // Gets neighbors of a given tile
     public List<Tile> getNeighbors(Tile[][] map) {
         List<Tile> neighbors = new ArrayList<>();
         int rows = map.length;
         int cols = map[0].length;
 
         // Check bounds for all possible neighbors
-
         if (x > 0) neighbors.add(map[x - 1][y]); // North
         if (x < rows - 1) neighbors.add(map[x + 1][y]); // South
         if (y > 0) neighbors.add(map[x][y - 1]); // West

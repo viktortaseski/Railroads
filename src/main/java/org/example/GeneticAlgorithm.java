@@ -9,22 +9,24 @@ public class GeneticAlgorithm {
         long startTime = 0;
         long endTime = 0;
         int iterations = Game.getIterations();
+        int populationSize = 50;    // Default population size.
 
+        // Depending on the game mode run the proper implementation.
         if (Game.getMode() == 1) {
             System.out.println("Running Sequential Genetic Algorithm... \nSize: " + Game.getSize() + "\nTrains: " + Game.getTrains().size() + "\nIterations: " + iterations);
             startTime = System.currentTimeMillis();
-            runSequential(iterations, 50, random);
+            runSequential(iterations, populationSize, random);
             endTime = System.currentTimeMillis();
         } else if (Game.getMode() == 2) {
             System.out.println("Running GA with Parallel Evaluation... \nSize: " + Game.getSize() + "\nTrains: " + Game.getTrains().size() + "\nIterations: " + iterations);
             startTime = System.currentTimeMillis();
-            runParallel(iterations, 50, random);
+            runParallel(iterations, populationSize, random);
             endTime = System.currentTimeMillis();
         } else if (Game.getMode() == 3) {
             System.out.println("NOT IMPLEMENTED YET");
         }
 
-        /* Print results for each train.
+        /* Print path results for each train.
         for (Train train : Game.getTrains()) {
             System.out.println("Reached station: " + train.getResult().isPathExists() +
                     " | Path for Train[" + train.getId() + "]: ");
@@ -44,14 +46,15 @@ public class GeneticAlgorithm {
         List<MapSolution> population = initPopulation(populationSize);
 
         for (int i = 0; i < iterations; i++) {
-            // Track if we are progressing
+            // Basic progress bar
             if (i % 50 == 0) {  // Print "|" every 50 iterations
-                if (i % (50 * 5) == 0 && i != 0) {  // Add a tab every 5th "|"
+                if (i % (50 * 5) == 0 && i != 0) {  // Add a tab every 5th "|" for easier counting
                     System.out.print("\t");
                 }
                 System.out.print("|");
             }
-            // Evaluate fitness for current generation.
+
+            // Evaluate fitness for current generation. One by one sequentially.
             for (MapSolution solution : population) {
                 solution.evaluateFitness();
             }
@@ -73,6 +76,7 @@ public class GeneticAlgorithm {
         ExecutorService executor = Executors.newFixedThreadPool(populationSize);
 
         for (int i = 0; i < iterations; i++) {
+            // Progress bar
             if (i % 50 == 0) {  // Print "|" every 50 iterations
                 if (i % (50 * 5) == 0 && i != 0) {  // Add a tab every 5th "|"
                     System.out.print("\t");
@@ -85,8 +89,10 @@ public class GeneticAlgorithm {
             population = creatingNewGeneration(population, populationSize, random);
         }
 
+        // Evaluation of the final generation.
         parallelFitnessEvaluation(population, executor);
 
+        // Executor has no further work can shut down.
         executor.shutdown();
         try {
             executor.awaitTermination(1, TimeUnit.MINUTES);
@@ -94,14 +100,14 @@ public class GeneticAlgorithm {
             e.printStackTrace();
         }
 
-        // Set the best solution on the game board.
+        // Sort the population and get the best solution on the game board.
         population.sort(Comparator.comparingInt(MapSolution::getFitness));
         Game.setBoard(population.getFirst().getMapLayout());
     }
 
     /**
      * Creates the next generation from the given population.
-     * The population is first sorted. Then 10% (10% of 50 = 5 MapSolutions) of elite solutions are carried over directly.
+     * The population is first sorted. Then elitism is used -> 10% (10% of 50 = 5 MapSolutions) of elite solutions are carried over directly.
      * The remainder of the next generation is produced by selecting parents using weighted random selection that professor Domen suggested.
      * (using ranking weights) and then applying crossover and mutation.
      * After reaching 50 MapSolutions we return the nextGeneration.
@@ -133,15 +139,7 @@ public class GeneticAlgorithm {
         return nextGeneration;
     }
 
-    /**
-     * Weighted random selection based on ranking.
-     * Assumes the population is sorted in ascending order of fitness.
-     * The best candidate (index 0) gets the highest weight.
-     *
-     * @param population the sorted list of solutions
-     * @param random     the seeded Random instance
-     * @return a selected MapSolution
-     */
+
     public static MapSolution selectParent(List<MapSolution> population, Random random) {
         int n = population.size();
         int totalWeight = n * (n + 1) / 2; // sum of weights 1...n
@@ -190,6 +188,7 @@ public class GeneticAlgorithm {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 // Swap cells in the bottom-right region relative to the pivot.
+                // So if pivot (x,y) then we swap all cells >= x,y (right and bottom section)
                 if (i >= pivotRow && j >= pivotCol) {
                     Tile temp = childLayout1[i][j];
                     childLayout1[i][j] = childLayout2[i][j];
@@ -234,10 +233,11 @@ public class GeneticAlgorithm {
             map[i][j].setType(possibleTypes[random.nextInt(possibleTypes.length)]);
         }
 
+        // Update the map to the mutated map.
         solution.setMapLayout(map);
     }
 
-    // Helper to evaluate fitness in parallel.
+    // Evaluate fitness in parallel. Each solution gets a thread and executes at the same time.
     static void parallelFitnessEvaluation(List<MapSolution> solutions, ExecutorService executor) {
         List<Callable<Void>> tasks = new ArrayList<>();
         for (MapSolution solution : solutions) {

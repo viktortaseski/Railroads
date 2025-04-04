@@ -10,7 +10,7 @@ public class Game implements Serializable {
     private static Tile[][] board;
     private static int numTrains;
     public static List<Train> TRAINS;
-    private final long seed; // Seed for consistent randomness
+    private final long seed;
 
     public Game(int mode, int iterations, int size, int numTrains, long seed) {
         Game.mode = mode;
@@ -19,13 +19,13 @@ public class Game implements Serializable {
         board = new Tile[size][size];
         Game.numTrains = numTrains;
         TRAINS = new ArrayList<>();
-        this.seed = seed; // Store the seed
+        this.seed = seed;
     }
 
     public void init() {
         board = new Tile[size][size];
         TRAINS = new ArrayList<>();
-        Random rand = new Random(seed); // Use the seed for consistent results
+        Random rand = new Random(seed);
 
         // Initialize board with random roads.
         for (int i = 0; i < size; i++) {
@@ -34,6 +34,8 @@ public class Game implements Serializable {
             }
         }
 
+        // Now we add the trains with their start and end locations
+        // But we have to make sure all locations are unique
         Set<String> usedCoordinates = new HashSet<>(); // To track used coordinates
         for (int i = 0; i < numTrains; i++) {
             // Generate unique start coordinates for the train.
@@ -43,6 +45,7 @@ public class Game implements Serializable {
                 x = rand.nextInt(size);
                 y = rand.nextInt(size);
             }
+            // update the used coordinates and add the start location of the train
             usedCoordinates.add(x + "," + y);
             Tile start = new Tile(x, y, Rotation.ZERO, TileType.TRAIN);
             board[x][y] = start;
@@ -53,6 +56,7 @@ public class Game implements Serializable {
                 y = rand.nextInt(size);
             } while (usedCoordinates.contains(x + "," + y));
 
+            // Update coordinates and add the end location of the train
             usedCoordinates.add(x + "," + y);
             Tile end = new Tile(x, y, Rotation.ZERO, TileType.STATION);
             board[x][y] = end;
@@ -63,11 +67,10 @@ public class Game implements Serializable {
             TRAINS.add(train);
         }
 
+        // Add indexes to each train so we can differentiate them.
         int id = 0;
         for (Train train : TRAINS) {
             id++;
-            //System.out.println("Train[" + index + "] (" + train.getStartTile().getX() + ", " + train.getStartTile().getY() +
-            //        ") (" + train.getEndTile().getX() + ", " + train.getEndTile().getY() + ")");
             train.setId(id);
         }
     }

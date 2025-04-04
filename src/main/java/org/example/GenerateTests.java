@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class GenerateTests {
 
-    // Inner class to represent a test configuration.
+    // Inner class to represent a test configuration as object.
     public static class Pair {
         int size, trains;
         public Pair(int size, int trains) {
@@ -69,7 +69,6 @@ public class GenerateTests {
 
     /**
      * Runs tests for a given mode and returns formatted rows.
-     *
      * @param mode  1 for sequential, 2 for parallel
      * @param iterations Number of iterations to run.
      * @param label The label for the test type.
@@ -86,13 +85,16 @@ public class GenerateTests {
         for (Pair test : tests) {
             // Create a new game with the given mode, size, and number of trains.
             Game game = new Game(mode, iterations, test.getSize(), test.getTrains(), 1234);
+            // Initialize the game before starting
             game.init();
+
             long startTime = System.currentTimeMillis();
             GeneticAlgorithm.start();
             long elapsedTime = System.currentTimeMillis() - startTime;
             // Retrieve the best map cost after running the test.
             int bestMapCost = Game.getBoardFitness();
 
+            // Append a row to the table of the test
             sb.append(formatRow(
                     label + " Test",
                     String.valueOf(test.getSize()),
@@ -119,7 +121,7 @@ public class GenerateTests {
                 + "|" + center(col6, w6)
                 + "|\n";
     }
-
+    // Helper function for formatting
     private static String center(String s, int width) {
         if (s == null) s = "";
         int len = s.length();
@@ -129,7 +131,7 @@ public class GenerateTests {
         int padEnd = padSize - padStart;
         return " ".repeat(padStart) + s + " ".repeat(padEnd);
     }
-
+    // Writes the results to results.txt
     public static void saveResults(String content, String filename) throws IOException {
         File file = new File(filename);
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));

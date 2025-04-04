@@ -11,10 +11,10 @@ public class Main {
     public static void main(String[] args) throws IOException {
         System.out.println("\t=========== RULES ===========");
         System.out.println("NOTE: Please read the project report before running the program.");
-        System.out.println("1. Enter by choice Mode, map size and number of trains.");
+        System.out.println("1. Enter by choice mode, map size and number of trains.");
         System.out.println("2. After that press on the GUI with your cursor. For running the game press 's' on your keyboard");
         System.out.println("3. If you want to make changes to the map you can press any valid number then ENTER key.");
-        System.out.println("4. Starting score = 200 ");
+        System.out.println("4. Starting score = 200");
         System.out.println("5. The lower the score the better. e.g. -20 > 30 ");
         System.out.println("6. Straight roads are considered of cost 0. Turns of 1, Threeway = 2, Cross = 3.");
         System.out.println("\t=============================\n");
@@ -35,6 +35,7 @@ public class Main {
         int mapSize;
         int numberOfTrains;
         int iterations;
+        // Enter game settings
         do {
             System.out.println("Enter map size: 'max: 50, min: 3' ");
             mapSize = scanner.nextInt();

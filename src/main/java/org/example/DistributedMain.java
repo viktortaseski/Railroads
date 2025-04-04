@@ -11,9 +11,9 @@ import java.util.concurrent.Executors;
 public class DistributedMain {
 
     public static final int ROOT = 0;
-    public static final int iterations = 1000;
-    public static final int mapSize = 30;
-    public static final int numberOfTrains = 50;
+    public static final int iterations = 100;
+    public static final int mapSize = 20;
+    public static final int numberOfTrains = 5;
     public static final int populationSize = 50;
     public static MapSolution[] population = new MapSolution[populationSize];
     static ExecutorService executor = Executors.newFixedThreadPool(populationSize);

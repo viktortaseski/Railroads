@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class Gui extends JPanel implements Runnable {
-    int SIZE = 800;
+    int SIZE = 800; // Default window size
 
     private final BufferedImage[] tileImages = {
             ImageIO.read(new File("TileImages/roadTexture_01.png")),  // Straight   (Vertical)
@@ -39,12 +39,13 @@ public class Gui extends JPanel implements Runnable {
         super.paintComponent(g);
 
         Tile[][] map = Game.getMap();
-        int tileSize = SIZE / Game.getSize(); // Calculate tile size once
+        int tileSize = SIZE / Game.getSize(); // Calculate tile size
 
         for (int i = 0; i < Game.getSize(); i++) {
             for (int j = 0; j < Game.getSize(); j++) {
                 Tile tile = map[i][j];
                 if (tile != null) {
+                    // I have accidentally swapped the coordinates so this is actually correct x = j and y = i
                     int x = j * tileSize; // Corrected to column (j) for x-coordinate
                     int y = i * tileSize; // Corrected to row (i) for y-coordinate
 
@@ -69,12 +70,13 @@ public class Gui extends JPanel implements Runnable {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setColor(Color.RED);
 
-                // Draw train IDs
+                // Compute trains start and end locations
                 int startX = train.getStartTile().getY() * tileSize + tileSize / 2;     // The difference in Y and X is because of the row = y and col = x
                 int startY = train.getStartTile().getX() * tileSize + tileSize / 2;
                 int endX = train.getEndTile().getY() * tileSize + tileSize / 2;
                 int endY = train.getEndTile().getX() * tileSize + tileSize / 2;
 
+                // Draw the train and stations indexes
                 g2d.drawString(train.getId() + "", startX, startY);
                 g2d.drawString(train.getId() + "", endX, endY);
                 g2d.dispose();

@@ -2,6 +2,8 @@ package org.example;
 
 import mpi.MPI;
 import mpi.MPIException;
+
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -10,14 +12,15 @@ public class DistributedMain {
 
     public static final int ROOT = 0;
     public static final int iterations = 1000;
-    public static final int mapSize = 20;
-    public static final int numberOfTrains = 20;
+    public static final int mapSize = 30;
+    public static final int numberOfTrains = 50;
     public static final int populationSize = 50;
     public static MapSolution[] population = new MapSolution[populationSize];
     static ExecutorService executor = Executors.newFixedThreadPool(populationSize);
     public static Random random = new Random(12345);
+    public static ExecutorService pool = Executors.newFixedThreadPool(3);
 
-    public static void main(String[] args) throws MPIException {
+    public static void main(String[] args) throws MPIException, IOException {
         // Initialize the game before MPI.Init.
         // Use mode 1 (sequential GA) so that GA settings match your sequential/parallel versions.
         Game game = new Game(1, iterations, mapSize, numberOfTrains, 1234);
@@ -39,6 +42,10 @@ public class DistributedMain {
             List<MapSolution> initialPopulation = GeneticAlgorithm.initPopulation(populationSize);
             population = initialPopulation.toArray(new MapSolution[populationSize]);
             sendBuffer = population;
+
+            pool.submit(new InputHandler());
+            pool.submit(new GameLoop(game));
+            pool.submit(new Gui());
         }
 
         // Evolution loop
@@ -76,6 +83,8 @@ public class DistributedMain {
             finalPopulation.sort(Comparator.comparingInt(MapSolution::getFitness));
             MapSolution bestMap = finalPopulation.getFirst();
             Game.setBoard(bestMap.getMapLayout());
+
+
 
             System.out.println("==========================================");
             System.out.println("Population size: " + finalPopulation.size());

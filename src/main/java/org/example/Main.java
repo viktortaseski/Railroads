@@ -22,12 +22,12 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         int mode;
         do {
-            System.out.println("Enter mode: \n(1)Sequential \n(2)Parallel \n(3)Distributed \n(4)Automatic Testing");
+            System.out.println("Enter mode: \n(1)Sequential \n(2)Parallel \n(3)Automatic Testing");
             mode = scanner.nextInt();
-        } while (mode < 1 || mode > 4);
+        } while (mode < 1 || mode > 3);
 
         // If automatic testing mode is selected, run tests and exit.
-        if (mode == 4) {
+        if (mode == 3) {
             GenerateTests.runTests();
             System.exit(0);
         }

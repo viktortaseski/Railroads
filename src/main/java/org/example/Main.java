@@ -9,9 +9,9 @@ public class Main {
     public static ExecutorService pool = Executors.newFixedThreadPool(3);
 
     public static void main(String[] args) throws IOException {
-        System.out.println("\t\t\tHELLO WORLD");
         System.out.println("\t=========== RULES ===========");
-        System.out.println("1. Tested settings: Mode = 1, Size = 4 and Trains = 1");
+        System.out.println("NOTE: Please read the project report before running the program.");
+        System.out.println("1. Enter by choice Mode, map size and number of trains.");
         System.out.println("2. After that press on the GUI with your cursor. For running the game press 's' on your keyboard");
         System.out.println("3. If you want to make changes to the map you can press any valid number then ENTER key.");
         System.out.println("4. Starting score = 200 ");

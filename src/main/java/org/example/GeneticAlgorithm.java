@@ -227,10 +227,13 @@ public class GeneticAlgorithm {
         int j = random.nextInt(map[0].length);
 
         // If the tile is not a TRAIN or STATION, change it to one of the low-cost road types.
-        if (map[i][j].getType() != TileType.STATION && map[i][j].getType() != TileType.TRAIN) {
-            // Assuming the last two enum values represent STATION and TRAIN, select from the others.
-            TileType[] possibleTypes = Arrays.copyOf(TileType.values(), TileType.values().length - 2);
-            map[i][j].setType(possibleTypes[random.nextInt(possibleTypes.length)]);
+        // Mutation rate is 1/3 of the map so 1/3 of the map gets mutated
+        for (int k = 0; k < Math.sqrt(map.length) / 3; k++) {
+            if (map[i][j].getType() != TileType.STATION && map[i][j].getType() != TileType.TRAIN) {
+                // Assuming the last two enum values represent STATION and TRAIN, select from the others.
+                TileType[] possibleTypes = Arrays.copyOf(TileType.values(), TileType.values().length - 2);
+                map[i][j].setType(possibleTypes[random.nextInt(possibleTypes.length)]);
+            }
         }
 
         // Update the map to the mutated map.
